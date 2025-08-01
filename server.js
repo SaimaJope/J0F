@@ -1,4 +1,4 @@
-// Simple rental system backend - Updated for new features
+// Simple rental system backend - Corrected for deployment path issues
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -7,19 +7,22 @@ const fs = require('fs').promises;
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Define the absolute path to the 'public' directory
-const publicPath = path.resolve(__dirname); // Serve from root
+// --- PATH CORRECTION ---
+// The error ENOENT indicates the app is run from a /src directory on the server.
+// We must adjust our paths to point one level up to the project root where the files are.
+const projectRoot = path.join(__dirname, '..');
 
 // --- MIDDLEWARE ---
 app.use(cors());
 app.use(express.json());
 
-// Serve static files (HTML, CSS, JS, images) from the root project directory
-app.use(express.static(publicPath));
+// Serve static files (HTML, CSS, JS, images) from the project root
+app.use(express.static(projectRoot));
 
-// Data file paths
-const RENTALS_FILE = path.join(__dirname, 'rentals.json');
-const GENERATORS_FILE = path.join(__dirname, 'generators.json');
+// Data file paths must also point to the project root
+const RENTALS_FILE = path.join(projectRoot, 'rentals.json');
+const GENERATORS_FILE = path.join(projectRoot, 'generators.json');
+
 
 // --- DATA INITIALIZATION ---
 async function initializeData() {
@@ -55,6 +58,8 @@ async function writeData(file, data) {
 }
 
 // --- API ENDPOINTS ---
+
+// [This section remains the same as before]
 
 // Create rental request
 app.post('/api/rentals', async (req, res) => {
@@ -106,7 +111,7 @@ app.get('/api/admin/rentals', async (req, res) => {
     }
 });
 
-// [NEW] Delete a rental
+// Delete a rental
 app.delete('/api/rentals/:id', async (req, res) => {
     try {
         const rentalId = parseInt(req.params.id);
@@ -120,7 +125,6 @@ app.delete('/api/rentals/:id', async (req, res) => {
 
         const rentalToDelete = rentals[rentalIndex];
 
-        // If the deleted rental had a generator assigned, make it available again
         if (rentalToDelete.generator_id) {
             const generator = generators.find(g => g.id === rentalToDelete.generator_id);
             if (generator) {
@@ -139,7 +143,7 @@ app.delete('/api/rentals/:id', async (req, res) => {
     }
 });
 
-// [NEW] Approve a rental (simulates sending notifications)
+// Approve a rental
 app.post('/api/rentals/:id/approve', async (req, res) => {
     try {
         const rentalId = parseInt(req.params.id);
@@ -149,13 +153,7 @@ app.post('/api/rentals/:id/approve', async (req, res) => {
         if (rental && rental.status === 'pending') {
             rental.status = 'approved';
             await writeData(RENTALS_FILE, rentals);
-
-            // --- NOTIFICATION LOGIC ---
-            // In a real application, you would integrate with services like Twilio (SMS) and SendGrid (Email) here.
             console.log(`SIMULATING: Sending approval SMS and Email to ${rental.phone} / ${rental.email}`);
-            console.log(`Message: Your booking #${rental.id} is approved. Contains terms and pickup info.`);
-            // --- END NOTIFICATION LOGIC ---
-
             res.json({ message: 'Rental approved and notifications sent.' });
         } else {
             res.status(404).json({ error: 'Rental not found or not in pending state.' });
@@ -197,7 +195,6 @@ app.post('/api/rentals/:id/paid', async (req, res) => {
 
         if (!rental) return res.status(404).json({ error: 'Rental not found' });
         
-        // Find a generator that is both active (in service) and available
         const availableGen = generators.find(g => g.is_active && g.is_available);
         if (!availableGen) {
             return res.status(400).json({ error: 'No generators available to assign.' });
@@ -221,13 +218,12 @@ app.post('/api/rentals/:id/paid', async (req, res) => {
 app.get('/api/generators/availability', async (req, res) => {
     try {
         const generators = await readData(GENERATORS_FILE);
-        // Available for rent = active (in service) AND available (not rented)
         const availableCount = generators.filter(g => g.is_active && g.is_available).length;
         
         res.json({ 
             total: generators.length,
             available: availableCount,
-            details: generators // Send full details for admin page
+            details: generators
         });
     } catch (err) {
         console.error('Error checking availability:', err);
@@ -235,7 +231,7 @@ app.get('/api/generators/availability', async (req, res) => {
     }
 });
 
-// [NEW] Toggle a generator's active status (in service / out of service)
+// Toggle a generator's active status
 app.post('/api/generators/:id/toggle-active', async (req, res) => {
     try {
         const generatorId = parseInt(req.params.id);
@@ -243,7 +239,7 @@ app.post('/api/generators/:id/toggle-active', async (req, res) => {
         const generator = generators.find(g => g.id === generatorId);
 
         if (generator) {
-            generator.is_active = !generator.is_active; // Toggle status
+            generator.is_active = !generator.is_active;
             await writeData(GENERATORS_FILE, generators);
             res.json({ message: `Generator ${generatorId} status updated.`, generator });
         } else {
@@ -255,7 +251,7 @@ app.post('/api/generators/:id/toggle-active', async (req, res) => {
     }
 });
 
-// Return a generator (makes it available again)
+// Return a generator
 app.post('/api/generators/:id/return', async (req, res) => {
     try {
         const generatorId = parseInt(req.params.id);
@@ -277,12 +273,13 @@ app.post('/api/generators/:id/return', async (req, res) => {
 
 
 // --- SERVE HTML PAGES ---
+// These routes now use the corrected projectRoot path to find the HTML files.
 app.get('/', (req, res) => {
-    res.sendFile(path.join(publicPath, 'index.html'));
+    res.sendFile(path.join(projectRoot, 'index.html'));
 });
 
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(publicPath, 'admin.html'));
+    res.sendFile(path.join(projectRoot, 'admin.html'));
 });
 
 // --- CATCH-ALL & STARTUP ---
@@ -293,6 +290,7 @@ app.use((req, res, next) => {
 initializeData().then(() => {
     app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`);
+        console.log(`Serving files from: ${projectRoot}`);
     });
 }).catch(err => {
     console.error('Failed to initialize data files:', err);
