@@ -7,30 +7,21 @@ const fs = require('fs').promises;
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware - FIXED static file serving
+// Define the absolute path to the 'public' directory
+const publicPath = path.join(__dirname, 'public');
+
+// --- MIDDLEWARE ---
 app.use(cors());
 app.use(express.json());
 
-// Serve static files with proper MIME types
-app.use(express.static(__dirname, {
-    setHeaders: (res, filePath) => {
-        if (filePath.endsWith('.css')) {
-            res.setHeader('Content-Type', 'text/css');
-        } else if (filePath.endsWith('.js')) {
-            res.setHeader('Content-Type', 'application/javascript');
-        } else if (filePath.endsWith('.png')) {
-            res.setHeader('Content-Type', 'image/png');
-        } else if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
-            res.setHeader('Content-Type', 'image/jpeg');
-        }
-    }
-}));
+// Serve static files ONLY from the 'public' directory
+app.use(express.static(publicPath));
 
-// Data file paths
-const RENTALS_FILE = './rentals.json';
-const GENERATORS_FILE = './generators.json';
+// Data file paths (using absolute paths for robustness)
+const RENTALS_FILE = path.join(__dirname, 'rentals.json');
+const GENERATORS_FILE = path.join(__dirname, 'generators.json');
 
-// Initialize data files
+// --- DATA INITIALIZATION ---
 async function initializeData() {
     try {
         await fs.access(RENTALS_FILE);
@@ -50,7 +41,7 @@ async function initializeData() {
     }
 }
 
-// Helper functions
+// --- HELPER FUNCTIONS ---
 async function readRentals() {
     const data = await fs.readFile(RENTALS_FILE, 'utf-8');
     return JSON.parse(data);
@@ -69,7 +60,7 @@ async function writeGenerators(generators) {
     await fs.writeFile(GENERATORS_FILE, JSON.stringify(generators, null, 2));
 }
 
-// API ENDPOINTS
+// --- API ENDPOINTS ---
 
 // Create rental request
 app.post('/api/rentals', async (req, res) => {
@@ -105,7 +96,7 @@ app.post('/api/rentals', async (req, res) => {
     }
 });
 
-// Get all rentals
+// Get all rentals (for admin)
 app.get('/api/admin/rentals', async (req, res) => {
     try {
         const status = req.query.status || 'all';
@@ -143,7 +134,7 @@ app.post('/api/rentals/:id/invoice', async (req, res) => {
     }
 });
 
-// Mark as paid
+// Mark as paid and assign a generator
 app.post('/api/rentals/:id/paid', async (req, res) => {
     try {
         const rentalId = parseInt(req.params.id);
@@ -177,16 +168,16 @@ app.post('/api/rentals/:id/paid', async (req, res) => {
     }
 });
 
-// Check availability
+// Check generator availability
 app.get('/api/generators/availability', async (req, res) => {
     try {
         const generators = await readGenerators();
         const available = generators.filter(g => g.is_available).length;
         
         res.json({ 
-            total: 3,
+            total: generators.length,
             available: available,
-            unavailable: 3 - available
+            unavailable: generators.length - available
         });
     } catch (err) {
         console.error('Error checking availability:', err);
@@ -194,7 +185,7 @@ app.get('/api/generators/availability', async (req, res) => {
     }
 });
 
-// Return generator
+// Return a generator
 app.post('/api/generators/:id/return', async (req, res) => {
     try {
         const generatorId = parseInt(req.params.id);
@@ -214,28 +205,28 @@ app.post('/api/generators/:id/return', async (req, res) => {
     }
 });
 
-// Serve specific files with correct paths
+// --- SERVE HTML PAGES ---
+// These routes ensure that visiting your site's root or /admin serves the correct HTML file.
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
+    res.sendFile(path.join(publicPath, 'admin.html'));
 });
 
-// Catch-all for debugging
+// --- CATCH-ALL & STARTUP ---
 app.use((req, res, next) => {
-    console.log(`404: ${req.method} ${req.url}`);
-    res.status(404).send('Not found');
+    console.log(`404 Not Found: ${req.method} ${req.url}`);
+    res.status(404).send('Not Found');
 });
 
-// Initialize and start
 initializeData().then(() => {
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
         console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-        console.log(`Static files served from: ${__dirname}`);
+        console.log(`Static files served from: ${publicPath}`); // Corrected log
     });
 }).catch(err => {
-    console.error('Failed to initialize:', err);
+    console.error('Failed to initialize data files:', err);
 });
