@@ -6,6 +6,12 @@
     <title>JobFuture Admin - Varausten Hallinta</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* [MODIFIED] Added styles for admin logo */
+        .admin-logo-img {
+            height: 40px; /* Adjust size as needed */
+            width: auto;
+        }
+
         /* Admin-specific styles - Minimal additions */
         .admin-header {
             background: var(--color-charcoal);
@@ -13,96 +19,26 @@
             padding: var(--space-md) 0;
             margin-bottom: var(--space-xl);
         }
-        
-        .admin-title {
-            color: var(--color-pure-white);
-        }
-        
-        .status-tabs {
-            display: flex;
-            gap: var(--space-md);
-            margin-bottom: var(--space-lg);
-            border-bottom: 2px solid var(--color-light-gray);
-        }
-        
-        .tab {
-            padding: var(--space-sm) var(--space-md);
-            background: none;
-            border: none;
-            font-size: var(--font-base);
-            cursor: pointer;
-            color: var(--color-medium-gray);
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
-            transition: var(--transition);
-        }
-        
-        .tab.active {
-            color: var(--color-jobfuture-teal);
-            border-bottom-color: var(--color-jobfuture-teal);
-        }
-        
-        .rentals-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--color-pure-white);
-        }
-        
-        .rentals-table th,
-        .rentals-table td {
-            padding: var(--space-sm);
-            text-align: left;
-            border-bottom: 1px solid var(--color-light-gray);
-        }
-        
-        .rentals-table th {
-            background: var(--color-off-white);
-            font-weight: 600;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: var(--radius);
-            font-size: var(--font-small);
-            font-weight: 500;
-        }
-        
+        .admin-title { color: var(--color-pure-white); }
+        .status-tabs { display: flex; gap: var(--space-md); margin-bottom: var(--space-lg); border-bottom: 2px solid var(--color-light-gray); }
+        .tab { padding: var(--space-sm) var(--space-md); background: none; border: none; font-size: var(--font-base); cursor: pointer; color: var(--color-medium-gray); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: var(--transition); }
+        .tab.active { color: var(--color-jobfuture-teal); border-bottom-color: var(--color-jobfuture-teal); }
+        .rentals-table { width: 100%; border-collapse: collapse; background: var(--color-pure-white); }
+        .rentals-table th, .rentals-table td { padding: var(--space-sm); text-align: left; border-bottom: 1px solid var(--color-light-gray); }
+        .rentals-table th { background: var(--color-off-white); font-weight: 600; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: var(--radius); font-size: var(--font-small); font-weight: 500; }
         .status-badge.pending { background: #FFF3CD; color: #856404; }
         .status-badge.approved { background: #B8DAFF; color: #004085; }
         .status-badge.invoiced { background: #CCE5FF; color: #004085; }
         .status-badge.paid { background: #D4EDDA; color: #155724; }
-        
-        .action-btn, .delete-btn {
-            padding: var(--space-xs) var(--space-sm);
-            font-size: var(--font-small);
-            margin-right: 5px;
-        }
+        .action-btn, .delete-btn { padding: var(--space-xs) var(--space-sm); font-size: var(--font-small); margin-right: 5px; }
         .delete-btn { background: #dc3545; color: white; border: none; }
         .delete-btn:hover { background: #c82333; }
-        
-        .generator-status {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--space-md);
-            margin-bottom: var(--space-xl);
-        }
-        
-        .generator-card {
-            background: var(--color-off-white);
-            padding: var(--space-md);
-            border-radius: var(--radius);
-            text-align: center;
-            border: 2px solid transparent;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        
+        .generator-status { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-xl); }
+        .generator-card { background: var(--color-off-white); padding: var(--space-md); border-radius: var(--radius); text-align: center; border: 2px solid transparent; display: flex; flex-direction: column; justify-content: space-between; }
         .generator-card.status-available { border-color: #28a745; }
         .generator-card.status-rented { border-color: #ffc107; }
         .generator-card.status-inactive { border-color: #6c757d; background: #f1f1f1; }
-        
         .generator-icon { font-size: 3rem; margin-bottom: var(--space-sm); }
         .refresh-btn { float: right; margin-bottom: var(--space-md); }
         .actions-cell { display: flex; flex-wrap: wrap; gap: 5px; }
@@ -113,7 +49,8 @@
     <header class="admin-header">
         <div class="container">
             <div class="header-content">
-                <h1 class="admin-title">JobFuture Admin</h1>
+                <!-- [MODIFIED] Replaced H1 with logo -->
+                <img src="logo.png" alt="JobFuture Admin" class="admin-logo-img">
                 <a href="/" class="btn btn--secondary">Takaisin sivustolle</a>
             </div>
         </div>
@@ -121,19 +58,14 @@
 
     <!-- Main Content -->
     <main class="container">
-        <!-- Generator Status -->
+        <!-- Sections remain the same -->
         <section>
             <h2>Aggregaattien tila</h2>
-            <div class="generator-status" id="generatorStatus">
-                <!-- Populated by JavaScript -->
-            </div>
+            <div class="generator-status" id="generatorStatus"></div>
         </section>
-
-        <!-- Rentals Management -->
         <section>
             <h2>Varaukset</h2>
             <button class="btn btn--secondary refresh-btn" onclick="loadAll()">🔄 Päivitä kaikki</button>
-            
             <div class="status-tabs">
                 <button class="tab active" onclick="filterRentals('all')">Kaikki</button>
                 <button class="tab" onclick="filterRentals('pending')">Odottaa hyväksyntää</button>
@@ -141,7 +73,6 @@
                 <button class="tab" onclick="filterRentals('invoiced')">Laskutettu</button>
                 <button class="tab" onclick="filterRentals('paid')">Maksettu</button>
             </div>
-            
             <table class="rentals-table">
                 <thead>
                     <tr>
@@ -154,17 +85,62 @@
                         <th>Toiminnot</th>
                     </tr>
                 </thead>
-                <tbody id="rentalsTableBody">
-                    <!-- Populated by JavaScript -->
-                </tbody>
+                <tbody id="rentalsTableBody"></tbody>
             </table>
         </section>
     </main>
 
+    <!-- [NEW] Generic Confirmation Modal for Admin Actions -->
+    <div class="modal" id="adminConfirmModal">
+        <div class="modal-content">
+            <h3 id="adminModalTitle">Vahvista toiminto</h3>
+            <p id="adminModalText">Oletko varma?</p>
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn--secondary" id="adminModalCancel">Peruuta</button>
+                <button class="btn btn--primary" id="adminModalConfirm">OK</button>
+            </div>
+        </div>
+    </div>
+
+
     <script>
+        // [MODIFIED] All JavaScript logic is new or updated
         const API_BASE = window.location.origin;
         let currentFilter = 'all';
-        
+
+        // --- [NEW] MODAL HANDLING ---
+        const adminModal = {
+            element: document.getElementById('adminConfirmModal'),
+            title: document.getElementById('adminModalTitle'),
+            text: document.getElementById('adminModalText'),
+            confirmBtn: document.getElementById('adminModalConfirm'),
+            cancelBtn: document.getElementById('adminModalCancel'),
+            confirmCallback: null,
+
+            show(title, text, onConfirm) {
+                this.title.textContent = title;
+                this.text.textContent = text;
+                this.confirmCallback = onConfirm;
+                this.element.classList.add('active');
+            },
+
+            hide() {
+                this.element.classList.remove('active');
+            }
+        };
+
+        adminModal.confirmBtn.addEventListener('click', () => {
+            if (adminModal.confirmCallback) {
+                adminModal.confirmCallback();
+            }
+            adminModal.hide();
+        });
+
+        adminModal.cancelBtn.addEventListener('click', () => {
+            adminModal.hide();
+        });
+
+
         document.addEventListener('DOMContentLoaded', loadAll);
         
         function loadAll() {
@@ -175,25 +151,19 @@
         async function loadGeneratorStatus() {
             try {
                 const response = await fetch(`${API_BASE}/api/generators/availability`);
+                if (!response.ok) throw new Error('Failed to load generators');
                 const data = await response.json();
-                
                 const container = document.getElementById('generatorStatus');
                 container.innerHTML = '';
                 
                 data.details.forEach(gen => {
                     let statusClass, statusText, icon;
                     if (!gen.is_active) {
-                        statusClass = 'status-inactive';
-                        statusText = 'Pois käytöstä';
-                        icon = '❌';
+                        statusClass = 'status-inactive'; statusText = 'Pois käytöstä'; icon = '❌';
                     } else if (!gen.is_available) {
-                        statusClass = 'status-rented';
-                        statusText = 'Vuokrattu';
-                        icon = '🔒';
+                        statusClass = 'status-rented'; statusText = 'Vuokrattu'; icon = '🔒';
                     } else {
-                        statusClass = 'status-available';
-                        statusText = 'Saatavilla';
-                        icon = '✅';
+                        statusClass = 'status-available'; statusText = 'Saatavilla'; icon = '✅';
                     }
 
                     const card = document.createElement('div');
@@ -204,7 +174,7 @@
                             <h4>${gen.name}</h4>
                             <p>${statusText}</p>
                         </div>
-                        <button class="btn btn--secondary" onclick="toggleGeneratorActive(${gen.id})">
+                        <button class="btn btn--secondary" onclick="toggleGeneratorActive(${gen.id}, '${gen.is_active ? 'ottaa pois käytöstä' : 'ottaa käyttöön'}')">
                             ${gen.is_active ? 'Ota pois käytöstä' : 'Ota käyttöön'}
                         </button>
                     `;
@@ -212,16 +182,17 @@
                 });
             } catch (error) {
                 console.error('Error loading generator status:', error);
+                if (error.message.includes('401')) {
+                    alert('Istunto vanhentunut. Päivitä sivu kirjautuaksesi uudelleen.');
+                }
             }
         }
         
         async function loadRentals() {
             try {
-                const url = currentFilter === 'all' 
-                    ? `${API_BASE}/api/admin/rentals`
-                    : `${API_BASE}/api/admin/rentals?status=${currentFilter}`;
-                    
+                const url = currentFilter === 'all' ? `${API_BASE}/api/admin/rentals` : `${API_BASE}/api/admin/rentals?status=${currentFilter}`;
                 const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to load rentals');
                 const rentals = await response.json();
                 const tbody = document.getElementById('rentalsTableBody');
                 tbody.innerHTML = '';
@@ -250,12 +221,7 @@
         }
         
         function getStatusText(status) {
-            const texts = {
-                pending: 'Odottaa hyväksyntää',
-                approved: 'Hyväksytty',
-                invoiced: 'Laskutettu',
-                paid: 'Maksettu'
-            };
+            const texts = { pending: 'Odottaa hyväksyntää', approved: 'Hyväksytty', invoiced: 'Laskutettu', paid: 'Maksettu' };
             return texts[status] || status;
         }
         
@@ -270,56 +236,61 @@
             } else if (rental.status === 'paid' && rental.generator_id) {
                 buttons += `<button class="btn btn--secondary action-btn" onclick="returnGenerator(${rental.generator_id})">Palauta</button>`;
             }
-            // Add delete button for all statuses
             buttons += `<button class="btn delete-btn" onclick="deleteRental(${rental.id})">Poista</button>`;
             return buttons;
         }
 
-        async function approveRental(rentalId) {
-            if (!confirm('Hyväksy varaus ja lähetä vahvistus asiakkaalle?')) return;
-            await fetch(`${API_BASE}/api/rentals/${rentalId}/approve`, { method: 'POST' });
-            loadAll();
+        // --- [MODIFIED] All action functions now use the custom modal ---
+        function approveRental(rentalId) {
+            adminModal.show('Hyväksy varaus', 'Lähetetäänkö asiakkaalle vahvistus varauksesta?', async () => {
+                await fetch(`${API_BASE}/api/rentals/${rentalId}/approve`, { method: 'POST' });
+                loadAll();
+            });
         }
         
-        async function sendInvoice(rentalId) {
-            if (!confirm('Lähetä lasku asiakkaalle?')) return;
-            await fetch(`${API_BASE}/api/rentals/${rentalId}/invoice`, { method: 'POST' });
-            loadRentals();
+        function sendInvoice(rentalId) {
+            adminModal.show('Lähetä lasku', 'Lähetetäänkö lasku asiakkaalle?', async () => {
+                await fetch(`${API_BASE}/api/rentals/${rentalId}/invoice`, { method: 'POST' });
+                loadRentals();
+            });
         }
         
-        async function markAsPaid(rentalId) {
-            if (!confirm('Merkitse varaus maksetuksi? Tämä varaa yhden aggregaatin.')) return;
-            const response = await fetch(`${API_BASE}/api/rentals/${rentalId}/paid`, { method: 'POST' });
-            if (!response.ok) {
-                const error = await response.json();
-                alert(`Virhe: ${error.error}`);
-            }
-            loadAll();
+        function markAsPaid(rentalId) {
+            adminModal.show('Merkitse maksetuksi', 'Merkitäänkö varaus maksetuksi? Tämä varaa yhden vapaan aggregaatin.', async () => {
+                const response = await fetch(`${API_BASE}/api/rentals/${rentalId}/paid`, { method: 'POST' });
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert(`Virhe: ${error.error}`);
+                }
+                loadAll();
+            });
         }
         
-        async function returnGenerator(generatorId) {
-            if (!confirm('Palauta aggregaatti saataville?')) return;
-            await fetch(`${API_BASE}/api/generators/${generatorId}/return`, { method: 'POST' });
-            loadAll();
+        function returnGenerator(generatorId) {
+            adminModal.show('Palauta aggregaatti', 'Palautetaanko tämä aggregaatti saataville?', async () => {
+                await fetch(`${API_BASE}/api/generators/${generatorId}/return`, { method: 'POST' });
+                loadAll();
+            });
         }
 
-        async function deleteRental(rentalId) {
-            if (!confirm('Haluatko varmasti poistaa tämän varauksen? Toimintoa ei voi perua.')) return;
-            await fetch(`${API_BASE}/api/rentals/${rentalId}`, { method: 'DELETE' });
-            loadAll();
+        function deleteRental(rentalId) {
+            adminModal.show('Poista varaus', 'Haluatko varmasti poistaa tämän varauksen? Toimintoa ei voi perua.', async () => {
+                await fetch(`${API_BASE}/api/rentals/${rentalId}`, { method: 'DELETE' });
+                loadAll();
+            });
         }
 
-        async function toggleGeneratorActive(generatorId) {
-            const action = event.target.textContent.trim().toLowerCase();
-            if (!confirm(`Haluatko varmasti ${action}?`)) return;
-            await fetch(`${API_BASE}/api/generators/${generatorId}/toggle-active`, { method: 'POST' });
-            loadAll();
+        function toggleGeneratorActive(generatorId, actionText) {
+            adminModal.show('Muuta tilaa', `Haluatko varmasti ${actionText} tämän aggregaatin?`, async () => {
+                await fetch(`${API_BASE}/api/generators/${generatorId}/toggle-active`, { method: 'POST' });
+                loadAll();
+            });
         }
         
         function filterRentals(status) {
             currentFilter = status;
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
+            event.target.closest('.tab').classList.add('active');
             loadRentals();
         }
     </script>
