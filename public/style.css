@@ -1,0 +1,706 @@
+/* Reset and Base Typography - The foundation of clarity */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Color Palette - Inspired by JobFuture brand identity */
+    --color-charcoal: #333333;
+    --color-off-white: #F4F4F4;
+    --color-pure-white: #FFFFFF;
+    --color-jobfuture-teal: #1B7A8C;
+    --color-jobfuture-teal-dark: #156370;
+    --color-safety-yellow: #FFB800;
+    --color-light-gray: #E5E5E5;
+    --color-medium-gray: #999999;
+    
+    /* Typography Scale - Purposeful hierarchy */
+    --font-base: 16px;
+    --font-small: 0.875rem;
+    --font-large: 1.125rem;
+    --font-h1: 2.5rem;
+    --font-h2: 2rem;
+    --font-h3: 1.5rem;
+    --font-h4: 1.25rem;
+    
+    /* Spacing - Consistent rhythm */
+    --space-xs: 0.5rem;
+    --space-sm: 1rem;
+    --space-md: 1.5rem;
+    --space-lg: 2rem;
+    --space-xl: 3rem;
+    --space-xxl: 4rem;
+    
+    /* Layout Constants */
+    --max-width: 1200px;
+    --radius: 4px;
+    --transition: all 0.2s ease;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: var(--font-base);
+    line-height: 1.6;
+    color: var(--color-charcoal);
+    background-color: var(--color-pure-white);
+}
+
+/* Typography - Clear communication */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: var(--space-sm);
+}
+
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--space-md);
+}
+
+/* Header - Understated authority */
+.site-header {
+    background: var(--color-pure-white);
+    border-bottom: 1px solid var(--color-light-gray);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md) 0;
+}
+
+.logo-img {
+    height: 50px;
+    width: auto;
+}
+
+.header-nav {
+    display: flex;
+    gap: var(--space-lg);
+    align-items: center;
+}
+
+.nav-link {
+    color: var(--color-charcoal);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.nav-link:hover {
+    color: var(--color-jobfuture-teal);
+}
+
+.nav-link--phone {
+    background: var(--color-jobfuture-teal);
+    color: var(--color-pure-white);
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius);
+}
+
+.nav-link--phone:hover {
+    background: var(--color-jobfuture-teal-dark);
+    color: var(--color-pure-white);
+}
+
+/* Hero Section - Strong first impression */
+.hero {
+    position: relative; /* Required for the pseudo-element background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 500px;
+    padding: var(--space-xxl) var(--space-md);
+    text-align: center;
+    overflow: hidden; /* Important to contain the blurred edges */
+}
+
+/* This is the blurred background image */
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('tuote_1.png');
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px) brightness(0.7); /* Apply blur and a slight dim */
+    transform: scale(1.1); /* Scale up to hide blurred edges */
+    z-index: -1; /* Sit behind the content */
+}
+
+.hero-content {
+    /* This content is not blurred */
+    max-width: 800px;
+}
+
+.hero-title {
+    font-size: var(--font-h1);
+    margin-bottom: var(--space-md);
+    color: var(--color-pure-white); /* White text for readability */
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7); /* Shadow for pop */
+}
+
+.hero-subtitle {
+    font-size: var(--font-large);
+    color: var(--color-off-white); /* Lighter gray text */
+    margin-bottom: var(--space-lg);
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.hero-actions {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+}
+
+/* Buttons - Clear affordances */
+.btn {
+    display: inline-block;
+    padding: var(--space-sm) var(--space-lg);
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--radius);
+    transition: var(--transition);
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: var(--font-base);
+}
+
+.btn--primary {
+    background: var(--color-jobfuture-teal);
+    color: var(--color-pure-white);
+}
+
+.btn--primary:hover {
+    background: var(--color-jobfuture-teal-dark);
+    transform: translateY(-2px);
+}
+
+.btn--secondary {
+    background: var(--color-pure-white);
+    color: var(--color-charcoal);
+    border-color: var(--color-light-gray); /* Lighter border */
+}
+
+.btn--secondary:hover {
+    background: var(--color-charcoal);
+    color: var(--color-pure-white);
+    border-color: var(--color-charcoal);
+}
+
+.btn--full {
+    width: 100%;
+    text-align: center;
+}
+
+/* Product Section - Technical precision */
+.product-section {
+    padding: var(--space-xxl) 0;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xxl);
+    align-items: start;
+}
+
+.gallery-main img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+}
+
+.gallery-thumbs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+}
+
+.thumb {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.thumb.active,
+.thumb:hover {
+    opacity: 1;
+    border-color: var(--color-jobfuture-teal);
+}
+
+.product-title {
+    font-size: var(--font-h2);
+    margin-bottom: var(--space-lg);
+}
+
+.product-specs {
+    display: grid;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+}
+
+.spec {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-sm);
+    background: var(--color-off-white);
+    border-radius: var(--radius);
+}
+
+.spec-label {
+    font-weight: 600;
+}
+
+.spec-value {
+    color: var(--color-medium-gray);
+}
+
+.product-features h4 {
+    margin-bottom: var(--space-sm);
+}
+
+.product-features ul {
+    list-style: none;
+}
+
+.product-features li {
+    padding: var(--space-xs) 0;
+    padding-left: var(--space-md);
+    position: relative;
+}
+
+.product-features li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--color-jobfuture-teal);
+    font-weight: bold;
+}
+
+/* Booking Section - Functional elegance */
+.booking-section {
+    background: var(--color-off-white);
+    padding: var(--space-xxl) 0;
+}
+
+.section-title {
+    font-size: var(--font-h2);
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.booking-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xxl);
+    align-items: start;
+}
+
+/* Calendar - Clean date selection */
+.calendar-wrapper {
+    background: var(--color-pure-white);
+    padding: var(--space-lg);
+    border-radius: var(--radius);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+}
+
+.calendar-nav {
+    background: none;
+    border: none;
+    font-size: var(--font-h4);
+    cursor: pointer;
+    padding: var(--space-xs) var(--space-sm);
+    color: var(--color-charcoal);
+    transition: var(--transition);
+}
+
+.calendar-nav:hover {
+    color: var(--color-jobfuture-teal);
+}
+
+.calendar-title {
+    font-size: var(--font-h4);
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-off-white);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: var(--font-small);
+}
+
+.calendar-day:hover:not(.disabled) {
+    background: var(--color-light-gray);
+}
+
+.calendar-day.selected {
+    background: var(--color-jobfuture-teal);
+    color: var(--color-pure-white);
+}
+
+.calendar-day.in-range {
+    background: #E6F0FF;
+    color: var(--color-charcoal);
+}
+
+.calendar-day.disabled {
+    color: var(--color-light-gray);
+    cursor: not-allowed;
+}
+
+.date-selection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
+.date-input label {
+    display: block;
+    font-size: var(--font-small);
+    margin-bottom: var(--space-xs);
+}
+
+.date-input input {
+    width: 100%;
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--color-light-gray);
+    border-radius: var(--radius);
+    background: var(--color-off-white);
+}
+
+/* Form - Clear and accessible */
+.booking-form {
+    background: var(--color-pure-white);
+    padding: var(--space-lg);
+    border-radius: var(--radius);
+}
+
+.price-display {
+    background: var(--color-safety-yellow);
+    padding: var(--space-md);
+    border-radius: var(--radius);
+    text-align: center;
+    margin-bottom: var(--space-md);
+}
+
+.price-amount {
+    font-size: var(--font-h2);
+    font-weight: 700;
+    display: block;
+}
+
+.price-note {
+    font-size: var(--font-small);
+    color: var(--color-medium-gray);
+}
+
+.form-disclaimer {
+    background: var(--color-off-white);
+    padding: var(--space-md);
+    border-radius: var(--radius);
+    margin-bottom: var(--space-lg);
+    font-size: var(--font-small);
+    color: var(--color-medium-gray);
+}
+
+.form-group {
+    margin-bottom: var(--space-md);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"] {
+    width: 100%;
+    padding: var(--space-sm);
+    border: 1px solid var(--color-light-gray);
+    border-radius: var(--radius);
+    font-size: var(--font-base);
+    transition: var(--transition);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--color-jobfuture-teal);
+}
+
+.delivery-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+}
+
+.radio-option {
+    display: block;
+    cursor: pointer;
+}
+
+.radio-option input {
+    display: none;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    background: var(--color-off-white);
+    border: 2px solid var(--color-light-gray);
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.radio-option input:checked + .radio-label {
+    border-color: var(--color-jobfuture-teal);
+    background: #E6F0FF;
+}
+
+.form-note {
+    font-size: var(--font-small);
+    color: var(--color-medium-gray);
+    margin-top: var(--space-xs);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.checkbox-label input {
+    width: 20px;
+    height: 20px;
+}
+
+.link {
+    color: var(--color-jobfuture-teal);
+}
+
+/* Info Section */
+.info-section {
+    padding: var(--space-xxl) 0;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+}
+
+.info-card {
+    background: var(--color-off-white);
+    padding: var(--space-lg);
+    border-radius: var(--radius);
+}
+
+.info-card h4 {
+    margin-bottom: var(--space-sm);
+}
+
+.info-highlight {
+    font-weight: 600;
+    margin-top: var(--space-sm);
+}
+
+/* Footer - Minimal information */
+.site-footer {
+    background: var(--color-charcoal);
+    color: var(--color-pure-white);
+    padding: var(--space-xl) 0;
+    margin-top: var(--space-xxl);
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+}
+
+.site-footer h5 {
+    color: var(--color-pure-white);
+    margin-bottom: var(--space-sm);
+}
+
+.site-footer p {
+    margin-bottom: var(--space-xs);
+}
+
+.site-footer a {
+    color: var(--color-pure-white);
+    text-decoration: none;
+}
+
+.site-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Modal - Simple feedback */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--color-pure-white);
+    padding: var(--space-xl);
+    border-radius: var(--radius);
+    max-width: 400px;
+    text-align: center;
+}
+
+.modal-content--large {
+    max-width: 800px;
+    text-align: left;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--color-light-gray);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: var(--font-h3);
+    cursor: pointer;
+    color: var(--color-medium-gray);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.modal-close:hover {
+    background: var(--color-off-white);
+    color: var(--color-charcoal);
+}
+
+.modal-body {
+    overflow-y: auto;
+    padding: var(--space-lg) 0;
+    flex: 1;
+}
+
+.modal-body h4 {
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-sm);
+    color: var(--color-jobfuture-teal);
+}
+
+.modal-body h4:first-child {
+    margin-top: 0;
+}
+
+.modal-body ul {
+    margin-left: var(--space-lg);
+    margin-bottom: var(--space-md);
+}
+
+.modal-body li {
+    margin-bottom: var(--space-xs);
+}
+
+.modal-footer {
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-light-gray);
+    text-align: right;
+}
+
+.modal-content h3 {
+    margin-bottom: var(--space-md);
+}
+
+.modal-content p {
+    margin-bottom: var(--space-lg);
+}
+
+/* Responsive Design - Mobile-first approach */
+@media (max-width: 768px) {
+    .hero,
+    .product-grid,
+    .booking-grid,
+    .info-grid,
+    .footer-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero {
+        text-align: center;
+        padding: var(--space-lg) var(--space-md);
+    }
+    
+    .hero-title {
+        font-size: 1.75rem;
+    }
+    
+    .hero-actions {
+        flex-direction: column;
+    }
+    
+    .header-nav {
+        gap: var(--space-md);
+    }
+    
+    .delivery-options {
+        grid-template-columns: 1fr;
+    }
+}
