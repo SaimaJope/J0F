@@ -1,4 +1,4 @@
-// Simple rental system backend - Corrected for deployment path issues
+// Simple rental system backend - Final version using a 'public' directory
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -7,21 +7,21 @@ const fs = require('fs').promises;
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- PATH CORRECTION ---
-// The error ENOENT indicates the app is run from a /src directory on the server.
-// We must adjust our paths to point one level up to the project root where the files are.
-const projectRoot = path.join(__dirname, '..');
-
 // --- MIDDLEWARE ---
 app.use(cors());
 app.use(express.json());
 
-// Serve static files (HTML, CSS, JS, images) from the project root
-app.use(express.static(projectRoot));
+// --- PATH CONFIGURATION (The Correct Way) ---
+// 1. Define the absolute path to the 'public' directory where all static assets are.
+const publicPath = path.join(__dirname, 'public');
 
-// Data file paths must also point to the project root
-const RENTALS_FILE = path.join(projectRoot, 'rentals.json');
-const GENERATORS_FILE = path.join(projectRoot, 'generators.json');
+// 2. Define the absolute paths to your data files in the project root.
+const RENTALS_FILE = path.join(__dirname, 'rentals.json');
+const GENERATORS_FILE = path.join(__dirname, 'generators.json');
+
+// 3. Tell Express to serve all static files from the 'public' directory.
+// Any request for a file (e.g., /style.css, /script.js, /admin.html) will be looked for here.
+app.use(express.static(publicPath));
 
 
 // --- DATA INITIALIZATION ---
@@ -37,7 +37,6 @@ async function initializeData() {
     try {
         await fs.access(GENERATORS_FILE);
     } catch {
-        // Future-proofing: This structure can be expanded with more item types
         const generators = [
             { id: 1, name: "Aggregaatti 1", is_available: true, is_active: true },
             { id: 2, name: "Aggregaatti 2", is_available: true, is_active: true },
@@ -58,8 +57,7 @@ async function writeData(file, data) {
 }
 
 // --- API ENDPOINTS ---
-
-// [This section remains the same as before]
+// (No changes are needed in this section. It remains the same.)
 
 // Create rental request
 app.post('/api/rentals', async (req, res) => {
@@ -75,7 +73,7 @@ app.post('/api/rentals', async (req, res) => {
             delivery_type: delivery,
             address: address || '',
             price: parseFloat(price),
-            status: 'pending', // Initial status
+            status: 'pending',
             created_at: new Date().toISOString(),
             generator_id: null
         };
@@ -273,25 +271,22 @@ app.post('/api/generators/:id/return', async (req, res) => {
 
 
 // --- SERVE HTML PAGES ---
-// These routes now use the corrected projectRoot path to find the HTML files.
-app.get('/', (req, res) => {
-    res.sendFile(path.join(projectRoot, 'index.html'));
+// Since we are using express.static(publicPath), Express will automatically
+// serve index.html for '/' requests. This catch-all is a fallback for
+// client-side routing, ensuring that direct navigation to /admin still works.
+app.get('*', (req, res) => {
+  res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(projectRoot, 'admin.html'));
-});
 
-// --- CATCH-ALL & STARTUP ---
-app.use((req, res, next) => {
-    res.status(404).send('Not Found');
-});
-
+// --- STARTUP ---
 initializeData().then(() => {
     app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`);
-        console.log(`Serving files from: ${projectRoot}`);
+        console.log(`Serving static files from: ${publicPath}`);
+        console.log(`Reading data files from project root: ${__dirname}`);
     });
 }).catch(err => {
     console.error('Failed to initialize data files:', err);
+    process.exit(1); // Exit the process if data files can't be set up
 });
