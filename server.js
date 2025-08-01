@@ -122,6 +122,34 @@ app.get('/api/generators/availability', async (req, res) => {
     }
 });
 
+// Add this new route, maybe after the other public API routes
+app.get('/api/rentals/booked-dates', async (req, res) => {
+    try {
+        const rentals = await readData(RENTALS_FILE);
+        const activeGeneratorsCount = (await readData(GENERATORS_FILE)).filter(g => g.is_active).length;
+
+        // Filter for rentals that are confirmed and occupy a generator
+        const confirmedRentals = rentals.filter(r => 
+            ['approved', 'invoiced', 'paid'].includes(r.status)
+        );
+
+        // Extract the start and end dates
+        const bookedPeriods = confirmedRentals.map(r => ({
+            start: r.start_date,
+            end: r.end_date
+        }));
+
+        res.json({
+            bookedPeriods: bookedPeriods,
+            activeGenerators: activeGeneratorsCount
+        });
+
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to retrieve booked dates.' });
+    }
+});
+
+
 // PROTECTED ADMIN API ROUTES
 app.get('/api/admin/rentals', isAuthenticated, async (req, res) => {
     try {

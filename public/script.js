@@ -7,7 +7,8 @@ const state = {
     selectedEndDate: null,
     currentMonth: new Date(),
     pricePerDay: 95, // EUR, final price per day including 25.5% VAT
-    availableGenerators: 0 // Initialize to 0, will be updated from API
+    bookedPeriods: [], // To store {start, end} objects
+    activeGenerators: 0 // To store the number of active generators
 };
 
 // API Configuration
@@ -33,42 +34,41 @@ const elements = {
 const finnishMonths = ['Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Kesäkuu', 'Heinäkuu', 'Elokuu', 'Syyskuu', 'Lokakuu', 'Marraskuu', 'Joulukuu'];
 const finnishDays = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
 
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', async () => {
-    initializeGallery();
-    initializeForm();
-    await checkAvailability(); // Wait for availability check to complete
-    initializeCalendar(); // Then initialize calendar which depends on availability
-});
+// Helper function to parse 'd.M.yyyy'
+function parseFinnishDate(dateStr) {
+    const parts = dateStr.split('.');
+    // Date constructor: new Date(year, monthIndex, day)
+    return new Date(parts[2], parts[1] - 1, parts[0]);
+}
 
-// Check generator availability from the backend
-async function checkAvailability() {
+// Fetch booked dates and active generators from the backend
+async function fetchData() {
     try {
-        const response = await fetch(`${API_BASE}/api/generators/availability`);
-        if (!response.ok) throw new Error('Failed to fetch availability');
+        const response = await fetch(`${API_BASE}/api/rentals/booked-dates`);
+        if (!response.ok) throw new Error('Failed to fetch data');
         const data = await response.json();
         
-        state.availableGenerators = data.available;
-        updateAvailabilityDisplay();
+        state.bookedPeriods = data.bookedPeriods.map(p => ({
+            start: parseFinnishDate(p.start),
+            end: parseFinnishDate(p.end)
+        }));
+        state.activeGenerators = data.activeGenerators;
+
     } catch (error) {
-        console.error('Error checking availability:', error);
-        // Fallback: assume not available to prevent incorrect bookings
-        state.availableGenerators = 0;
-        updateAvailabilityDisplay();
+        console.error('Error fetching data:', error);
+        state.activeGenerators = 0; // Fail-safe
     }
 }
 
-// [MODIFIED] Update the UI based on generator availability
+// Update the UI based on generator availability
 function updateAvailabilityDisplay() {
     const submitButton = elements.rentalForm.querySelector('button[type="submit"]');
     
-    if (state.availableGenerators > 0) {
-        // Generators are available, hide any special messages
+    if (state.activeGenerators > 0) {
         elements.heroSubtitle.innerHTML = `Vuokraa laadukas dieselaggregaatti työmaallesi. Toimitus tai nouto Leppävirralta.`;
         submitButton.disabled = false;
         submitButton.textContent = 'Lähetä varauspyyntö';
     } else {
-        // No generators available, show message and disable form
         elements.heroSubtitle.innerHTML = `Vuokraa laadukas dieselaggregaatti työmaallesi. Toimitus tai nouto Leppävirralta.<br>
         <strong style="color: #ff4444; margin-top: 10px; display: inline-block;">Kaikki aggregaatit ovat tällä hetkellä varattuja.</strong>`;
         submitButton.disabled = true;
@@ -91,7 +91,7 @@ function initializeCalendar() {
     });
 }
 
-// [MODIFIED] Renders the calendar, disabling it if no generators are available
+// Renders the calendar, disabling days if they are fully booked
 function renderCalendar() {
     const year = state.currentMonth.getFullYear();
     const month = state.currentMonth.getMonth();
@@ -116,8 +116,6 @@ function renderCalendar() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const areGeneratorsAvailable = state.availableGenerators > 0;
-
     for (let day = 1; day <= totalDays; day++) {
         const dayElement = document.createElement('div');
         dayElement.className = 'calendar-day';
@@ -125,8 +123,13 @@ function renderCalendar() {
         
         const currentDate = new Date(year, month, day);
         
-        // Disable past dates OR if no generators are available at all
-        if (currentDate < today || !areGeneratorsAvailable) {
+        // Count how many rentals are active on this specific day
+        const bookingsOnThisDay = state.bookedPeriods.filter(period => 
+            currentDate >= period.start && currentDate <= period.end
+        ).length;
+
+        // Disable past dates OR if the number of bookings is >= total active generators
+        if (currentDate < today || bookingsOnThisDay >= state.activeGenerators) {
             dayElement.classList.add('disabled');
         } else {
             dayElement.dataset.timestamp = currentDate.getTime();
@@ -227,8 +230,8 @@ async function handleFormSubmit(e) {
     }
     
     // Final availability check before submission
-    await checkAvailability();
-    if (state.availableGenerators === 0) {
+    await fetchData();
+    if (state.activeGenerators === 0) {
         alert('Valitettavasti kaikki aggregaatit ovat varattuja. Pyyntöä ei voi lähettää.');
         return;
     }
@@ -259,7 +262,7 @@ async function handleFormSubmit(e) {
         
         showSuccessModal();
         resetForm();
-        await checkAvailability(); // Refresh availability and UI
+        await fetchData(); // Refresh availability and UI
         renderCalendar(); // Re-render calendar with potentially new disabled state
         
     } catch (error) {
@@ -267,8 +270,8 @@ async function handleFormSubmit(e) {
         alert('Virhe lomakkeen lähetyksessä. Yritä uudelleen.');
     } finally {
         // Re-enable button only if generators are still available
-        if(state.availableGenerators > 0) {
-           submitButton.disabled = false;
+        if(state.activeGenerators > 0) {
+            submitButton.disabled = false;
         }
         submitButton.textContent = 'Lähetä varauspyyntö';
     }
@@ -311,4 +314,13 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     });
+});
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', async () => {
+    initializeGallery();
+    initializeForm();
+    await fetchData(); // Fetch all booked dates and active generators
+    updateAvailabilityDisplay(); // Update hero text based on initial count
+    initializeCalendar(); // Render the calendar with the correct disabled dates
 });
