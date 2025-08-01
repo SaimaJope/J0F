@@ -7,11 +7,11 @@ const state = {
     selectedEndDate: null,
     currentMonth: new Date(),
     pricePerDay: 95, // EUR, final price per day including 25.5% VAT
-    availableGenerators: 3
+    availableGenerators: 0 // Initialize to 0, will be updated from API
 };
 
 // API Configuration
-const API_BASE = window.location.origin; // Works for both local and production
+const API_BASE = window.location.origin;
 
 // DOM Elements - Cached for performance
 const elements = {
@@ -25,68 +25,61 @@ const elements = {
     addressGroup: document.getElementById('addressGroup'),
     rentalForm: document.getElementById('rentalForm'),
     modal: document.getElementById('successModal'),
-    mainImage: document.getElementById('mainImage')
+    mainImage: document.getElementById('mainImage'),
+    heroSubtitle: document.querySelector('.hero-subtitle') // Cache hero subtitle
 };
 
-// Finnish month names - Respecting locale
-const finnishMonths = [
-    'Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu',
-    'Toukokuu', 'Kesäkuu', 'Heinäkuu', 'Elokuu',
-    'Syyskuu', 'Lokakuu', 'Marraskuu', 'Joulukuu'
-];
-
-// Finnish day abbreviations
+// Finnish month names and day abbreviations
+const finnishMonths = ['Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Kesäkuu', 'Heinäkuu', 'Elokuu', 'Syyskuu', 'Lokakuu', 'Marraskuu', 'Joulukuu'];
 const finnishDays = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
 
 // Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-    initializeCalendar();
+document.addEventListener('DOMContentLoaded', async () => {
     initializeGallery();
     initializeForm();
-    checkAvailability(); // Check generator availability on load
+    await checkAvailability(); // Wait for availability check to complete
+    initializeCalendar(); // Then initialize calendar which depends on availability
 });
 
-// Check generator availability
+// Check generator availability from the backend
 async function checkAvailability() {
     try {
         const response = await fetch(`${API_BASE}/api/generators/availability`);
+        if (!response.ok) throw new Error('Failed to fetch availability');
         const data = await response.json();
         
         state.availableGenerators = data.available;
         updateAvailabilityDisplay();
     } catch (error) {
         console.error('Error checking availability:', error);
+        // Fallback: assume not available to prevent incorrect bookings
+        state.availableGenerators = 0;
+        updateAvailabilityDisplay();
     }
 }
 
+// [MODIFIED] Update the UI based on generator availability
 function updateAvailabilityDisplay() {
-    // Add availability info to the hero section
-    const heroSubtitle = document.querySelector('.hero-subtitle');
-    if (heroSubtitle) {
-        const availabilityText = state.availableGenerators > 0 
-            ? `${state.availableGenerators}/3 aggregaattia saatavilla`
-            : 'Kaikki aggregaatit varattu';
-        
-        heroSubtitle.innerHTML = `Vuokraa laadukas dieselaggregaatti työmaallesi. Toimitus tai nouto Leppävirralta.<br>
-        <strong style="color: ${state.availableGenerators > 0 ? '#FFB800' : '#ff4444'}">${availabilityText}</strong>`;
-    }
-    
-    // Disable form if no generators available
     const submitButton = elements.rentalForm.querySelector('button[type="submit"]');
-    if (state.availableGenerators === 0) {
-        submitButton.disabled = true;
-        submitButton.textContent = 'Ei saatavilla';
-    } else {
+    
+    if (state.availableGenerators > 0) {
+        // Generators are available, hide any special messages
+        elements.heroSubtitle.innerHTML = `Vuokraa laadukas dieselaggregaatti työmaallesi. Toimitus tai nouto Leppävirralta.`;
         submitButton.disabled = false;
         submitButton.textContent = 'Lähetä varauspyyntö';
+    } else {
+        // No generators available, show message and disable form
+        elements.heroSubtitle.innerHTML = `Vuokraa laadukas dieselaggregaatti työmaallesi. Toimitus tai nouto Leppävirralta.<br>
+        <strong style="color: #ff4444; margin-top: 10px; display: inline-block;">Kaikki aggregaatit ovat tällä hetkellä varattuja.</strong>`;
+        submitButton.disabled = true;
+        submitButton.textContent = 'Ei saatavilla';
     }
 }
 
-// Calendar functionality - The heart of the booking system
+// Calendar functionality
 function initializeCalendar() {
     renderCalendar();
     
-    // Navigation
     elements.prevMonth.addEventListener('click', () => {
         state.currentMonth.setMonth(state.currentMonth.getMonth() - 1);
         renderCalendar();
@@ -98,105 +91,76 @@ function initializeCalendar() {
     });
 }
 
+// [MODIFIED] Renders the calendar, disabling it if no generators are available
 function renderCalendar() {
     const year = state.currentMonth.getFullYear();
     const month = state.currentMonth.getMonth();
-    
-    // Update header
     elements.currentMonth.textContent = `${finnishMonths[month]} ${year}`;
-    
-    // Clear calendar
     elements.calendar.innerHTML = '';
-    
-    // Add day headers
+
     finnishDays.forEach(day => {
         const dayHeader = document.createElement('div');
         dayHeader.className = 'calendar-day-header';
         dayHeader.textContent = day;
         elements.calendar.appendChild(dayHeader);
     });
-    
-    // Calculate first day and total days
+
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const totalDays = lastDay.getDate();
-    
-    // Adjust for Monday start (Finnish convention)
-    let startingDayOfWeek = firstDay.getDay() - 1;
-    if (startingDayOfWeek === -1) startingDayOfWeek = 6;
-    
-    // Add empty cells for alignment
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    let startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+
     for (let i = 0; i < startingDayOfWeek; i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.className = 'calendar-day empty';
-        elements.calendar.appendChild(emptyDay);
+        elements.calendar.appendChild(document.createElement('div'));
     }
-    
-    // Add days
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
+    const areGeneratorsAvailable = state.availableGenerators > 0;
+
     for (let day = 1; day <= totalDays; day++) {
         const dayElement = document.createElement('div');
         dayElement.className = 'calendar-day';
-        
-        // Use innerHTML to ensure text persists
-        dayElement.innerHTML = day;
+        dayElement.textContent = day;
         
         const currentDate = new Date(year, month, day);
-        currentDate.setHours(0, 0, 0, 0);
         
-        // Store date as timestamp to avoid closure issues
-        dayElement.dataset.timestamp = currentDate.getTime();
-        dayElement.dataset.day = day;  // Store day number as backup
-        
-        // Disable past dates
-        if (currentDate < today) {
+        // Disable past dates OR if no generators are available at all
+        if (currentDate < today || !areGeneratorsAvailable) {
             dayElement.classList.add('disabled');
         } else {
-            // Use event delegation approach
+            dayElement.dataset.timestamp = currentDate.getTime();
             dayElement.addEventListener('click', handleDayClick);
             
-            // Highlight selected dates
             if (isDateSelected(currentDate)) {
                 dayElement.classList.add('selected');
             } else if (isDateInRange(currentDate)) {
                 dayElement.classList.add('in-range');
             }
         }
-        
         elements.calendar.appendChild(dayElement);
     }
 }
 
 function handleDayClick(event) {
-    const element = event.currentTarget;
-    const timestamp = parseInt(element.dataset.timestamp);
-    
+    const timestamp = parseInt(event.currentTarget.dataset.timestamp, 10);
     if (!timestamp) return;
-    
-    const date = new Date(timestamp);
-    selectDate(date);
+    selectDate(new Date(timestamp));
 }
 
 function selectDate(date) {
     if (!date) return;
-    
     if (!state.selectedStartDate || (state.selectedStartDate && state.selectedEndDate)) {
-        // First selection or restart
         state.selectedStartDate = new Date(date);
         state.selectedEndDate = null;
     } else {
-        // Second selection
         if (date < state.selectedStartDate) {
-            // If earlier date selected, swap
             state.selectedEndDate = new Date(state.selectedStartDate);
             state.selectedStartDate = new Date(date);
         } else {
             state.selectedEndDate = new Date(date);
         }
     }
-    
     updateDateInputs();
     updatePrice();
     renderCalendar();
@@ -213,24 +177,12 @@ function isDateInRange(date) {
 }
 
 function updateDateInputs() {
-    if (state.selectedStartDate) {
-        elements.startDate.value = formatDate(state.selectedStartDate);
-    } else {
-        elements.startDate.value = '';
-    }
-    
-    if (state.selectedEndDate) {
-        elements.endDate.value = formatDate(state.selectedEndDate);
-    } else {
-        elements.endDate.value = '';
-    }
+    elements.startDate.value = state.selectedStartDate ? formatDate(state.selectedStartDate) : '';
+    elements.endDate.value = state.selectedEndDate ? formatDate(state.selectedEndDate) : '';
 }
 
 function formatDate(date) {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}.${month}.${year}`;
+    return date.toLocaleDateString('fi-FI');
 }
 
 function updatePrice() {
@@ -238,65 +190,49 @@ function updatePrice() {
         elements.priceEstimate.textContent = '0€';
         return;
     }
-    
-    const days = Math.ceil((state.selectedEndDate - state.selectedStartDate) / (1000 * 60 * 60 * 24));
+    const days = Math.max(1, Math.ceil((state.selectedEndDate - state.selectedStartDate) / (1000 * 60 * 60 * 24)));
     const finalPrice = days * state.pricePerDay;
     elements.priceEstimate.textContent = `${finalPrice}€`;
 }
 
-// Gallery functionality - Simple, effective
+// Gallery functionality
 function initializeGallery() {
     const thumbs = document.querySelectorAll('.thumb');
-    
     thumbs.forEach(thumb => {
         thumb.addEventListener('click', function() {
-            // Update main image
-            const fullImage = this.getAttribute('data-full');
-            elements.mainImage.src = fullImage;
-            
-            // Update active state
+            elements.mainImage.src = this.getAttribute('data-full');
             thumbs.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
         });
     });
 }
 
-// Form functionality - User-centric validation
+// Form functionality
 function initializeForm() {
-    // Delivery option toggle
-    const deliveryRadios = document.querySelectorAll('input[name="delivery"]');
-    deliveryRadios.forEach(radio => {
+    document.querySelectorAll('input[name="delivery"]').forEach(radio => {
         radio.addEventListener('change', function() {
-            if (this.value === 'delivery') {
-                elements.addressGroup.style.display = 'block';
-                document.getElementById('address').required = true;
-            } else {
-                elements.addressGroup.style.display = 'none';
-                document.getElementById('address').required = false;
-            }
+            const isDelivery = this.value === 'delivery';
+            elements.addressGroup.style.display = isDelivery ? 'block' : 'none';
+            document.getElementById('address').required = isDelivery;
         });
     });
-    
-    // Form submission
     elements.rentalForm.addEventListener('submit', handleFormSubmit);
 }
 
 async function handleFormSubmit(e) {
     e.preventDefault();
-    
-    // Validate dates
     if (!state.selectedStartDate || !state.selectedEndDate) {
         alert('Valitse vuokrausajankohta kalenterista.');
         return;
     }
     
-    // Check availability one more time
+    // Final availability check before submission
+    await checkAvailability();
     if (state.availableGenerators === 0) {
-        alert('Valitettavasti kaikki aggregaatit ovat varattuja.');
+        alert('Valitettavasti kaikki aggregaatit ovat varattuja. Pyyntöä ei voi lähettää.');
         return;
     }
-    
-    // Collect form data
+
     const formData = new FormData(e.target);
     const data = {
         startDate: formatDate(state.selectedStartDate),
@@ -306,10 +242,9 @@ async function handleFormSubmit(e) {
         phone: formData.get('phone'),
         delivery: formData.get('delivery'),
         address: formData.get('address') || '',
-        price: parseFloat(elements.priceEstimate.textContent.replace('€', ''))
+        price: parseFloat(elements.priceEstimate.textContent)
     };
     
-    // Disable submit button to prevent double submission
     const submitButton = e.target.querySelector('button[type="submit"]');
     submitButton.disabled = true;
     submitButton.textContent = 'Lähetetään...';
@@ -317,28 +252,24 @@ async function handleFormSubmit(e) {
     try {
         const response = await fetch(`${API_BASE}/api/rentals`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
-        
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        
-        const result = await response.json();
-        console.log('Booking created:', result);
+        if (!response.ok) throw new Error('Booking submission failed');
         
         showSuccessModal();
         resetForm();
-        checkAvailability(); // Refresh availability
+        await checkAvailability(); // Refresh availability and UI
+        renderCalendar(); // Re-render calendar with potentially new disabled state
         
     } catch (error) {
         console.error('Error submitting form:', error);
         alert('Virhe lomakkeen lähetyksessä. Yritä uudelleen.');
     } finally {
-        submitButton.disabled = false;
+        // Re-enable button only if generators are still available
+        if(state.availableGenerators > 0) {
+           submitButton.disabled = false;
+        }
         submitButton.textContent = 'Lähetä varauspyyntö';
     }
 }
@@ -357,23 +288,19 @@ function resetForm() {
     state.selectedEndDate = null;
     updateDateInputs();
     updatePrice();
-    renderCalendar();
     elements.addressGroup.style.display = 'none';
+    // Calendar is reset via the main flow
 }
 
 // Global functions for modal handling
 window.closeModal = closeModal;
-window.showTermsModal = showTermsModal;
-window.closeTermsModal = closeTermsModal;
-
-function showTermsModal(e) {
+window.showTermsModal = (e) => {
     e.preventDefault();
     document.getElementById('termsModal').classList.add('active');
-}
-
-function closeTermsModal() {
+};
+window.closeTermsModal = () => {
     document.getElementById('termsModal').classList.remove('active');
-}
+};
 
 // Smooth scroll for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -381,33 +308,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     });
-});
-
-// Add subtle animations on scroll (optional enhancement)
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, observerOptions);
-
-// Observe sections for subtle fade-in
-document.querySelectorAll('section').forEach(section => {
-    section.style.opacity = '0';
-    section.style.transform = 'translateY(20px)';
-    section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    observer.observe(section);
 });

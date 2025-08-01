@@ -68,29 +68,22 @@
             font-weight: 500;
         }
         
-        .status-badge.pending {
-            background: #FFF3CD;
-            color: #856404;
-        }
+        .status-badge.pending { background: #FFF3CD; color: #856404; }
+        .status-badge.approved { background: #B8DAFF; color: #004085; }
+        .status-badge.invoiced { background: #CCE5FF; color: #004085; }
+        .status-badge.paid { background: #D4EDDA; color: #155724; }
         
-        .status-badge.invoiced {
-            background: #CCE5FF;
-            color: #004085;
-        }
-        
-        .status-badge.paid {
-            background: #D4EDDA;
-            color: #155724;
-        }
-        
-        .action-btn {
+        .action-btn, .delete-btn {
             padding: var(--space-xs) var(--space-sm);
             font-size: var(--font-small);
+            margin-right: 5px;
         }
+        .delete-btn { background: #dc3545; color: white; border: none; }
+        .delete-btn:hover { background: #c82333; }
         
         .generator-status {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: var(--space-md);
             margin-bottom: var(--space-xl);
         }
@@ -100,25 +93,19 @@
             padding: var(--space-md);
             border-radius: var(--radius);
             text-align: center;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         
-        .generator-card.available {
-            border: 2px solid #28a745;
-        }
+        .generator-card.status-available { border-color: #28a745; }
+        .generator-card.status-rented { border-color: #ffc107; }
+        .generator-card.status-inactive { border-color: #6c757d; background: #f1f1f1; }
         
-        .generator-card.rented {
-            border: 2px solid #dc3545;
-        }
-        
-        .generator-icon {
-            font-size: 3rem;
-            margin-bottom: var(--space-sm);
-        }
-        
-        .refresh-btn {
-            float: right;
-            margin-bottom: var(--space-md);
-        }
+        .generator-icon { font-size: 3rem; margin-bottom: var(--space-sm); }
+        .refresh-btn { float: right; margin-bottom: var(--space-md); }
+        .actions-cell { display: flex; flex-wrap: wrap; gap: 5px; }
     </style>
 </head>
 <body>
@@ -138,18 +125,19 @@
         <section>
             <h2>Aggregaattien tila</h2>
             <div class="generator-status" id="generatorStatus">
-                <!-- Will be populated by JavaScript -->
+                <!-- Populated by JavaScript -->
             </div>
         </section>
 
         <!-- Rentals Management -->
         <section>
             <h2>Varaukset</h2>
-            <button class="btn btn--secondary refresh-btn" onclick="loadRentals()">🔄 Päivitä</button>
+            <button class="btn btn--secondary refresh-btn" onclick="loadAll()">🔄 Päivitä kaikki</button>
             
             <div class="status-tabs">
                 <button class="tab active" onclick="filterRentals('all')">Kaikki</button>
-                <button class="tab" onclick="filterRentals('pending')">Odottaa laskutusta</button>
+                <button class="tab" onclick="filterRentals('pending')">Odottaa hyväksyntää</button>
+                <button class="tab" onclick="filterRentals('approved')">Hyväksytty</button>
                 <button class="tab" onclick="filterRentals('invoiced')">Laskutettu</button>
                 <button class="tab" onclick="filterRentals('paid')">Maksettu</button>
             </div>
@@ -159,33 +147,31 @@
                     <tr>
                         <th>ID</th>
                         <th>Nimi</th>
-                        <th>Sähköposti</th>
-                        <th>Puhelin</th>
-                        <th>Alkaa</th>
-                        <th>Päättyy</th>
+                        <th>Yhteystiedot</th>
+                        <th>Ajankohta</th>
                         <th>Hinta</th>
                         <th>Tila</th>
                         <th>Toiminnot</th>
                     </tr>
                 </thead>
                 <tbody id="rentalsTableBody">
-                    <!-- Will be populated by JavaScript -->
+                    <!-- Populated by JavaScript -->
                 </tbody>
             </table>
         </section>
     </main>
 
     <script>
-        // Admin functionality - Clean and purposeful
         const API_BASE = window.location.origin;
         let currentFilter = 'all';
         
-        // Load data on page load
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', loadAll);
+        
+        function loadAll() {
             loadGeneratorStatus();
             loadRentals();
-        });
-        
+        }
+
         async function loadGeneratorStatus() {
             try {
                 const response = await fetch(`${API_BASE}/api/generators/availability`);
@@ -194,17 +180,36 @@
                 const container = document.getElementById('generatorStatus');
                 container.innerHTML = '';
                 
-                for (let i = 1; i <= 3; i++) {
-                    const isAvailable = i <= data.available;
+                data.details.forEach(gen => {
+                    let statusClass, statusText, icon;
+                    if (!gen.is_active) {
+                        statusClass = 'status-inactive';
+                        statusText = 'Pois käytöstä';
+                        icon = '❌';
+                    } else if (!gen.is_available) {
+                        statusClass = 'status-rented';
+                        statusText = 'Vuokrattu';
+                        icon = '🔒';
+                    } else {
+                        statusClass = 'status-available';
+                        statusText = 'Saatavilla';
+                        icon = '✅';
+                    }
+
                     const card = document.createElement('div');
-                    card.className = `generator-card ${isAvailable ? 'available' : 'rented'}`;
+                    card.className = `generator-card ${statusClass}`;
                     card.innerHTML = `
-                        <div class="generator-icon">${isAvailable ? '✅' : '🔒'}</div>
-                        <h4>Aggregaatti ${i}</h4>
-                        <p>${isAvailable ? 'Saatavilla' : 'Vuokrattu'}</p>
+                        <div>
+                            <div class="generator-icon">${icon}</div>
+                            <h4>${gen.name}</h4>
+                            <p>${statusText}</p>
+                        </div>
+                        <button class="btn btn--secondary" onclick="toggleGeneratorActive(${gen.id})">
+                            ${gen.is_active ? 'Ota pois käytöstä' : 'Ota käyttöön'}
+                        </button>
                     `;
                     container.appendChild(card);
-                }
+                });
             } catch (error) {
                 console.error('Error loading generator status:', error);
             }
@@ -218,12 +223,11 @@
                     
                 const response = await fetch(url);
                 const rentals = await response.json();
-                
                 const tbody = document.getElementById('rentalsTableBody');
                 tbody.innerHTML = '';
                 
                 if (rentals.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Ei varauksia</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Ei varauksia tässä kategoriassa.</td></tr>';
                     return;
                 }
                 
@@ -232,13 +236,11 @@
                     row.innerHTML = `
                         <td>${rental.id}</td>
                         <td>${rental.name}</td>
-                        <td>${rental.email}</td>
-                        <td>${rental.phone}</td>
-                        <td>${rental.start_date}</td>
-                        <td>${rental.end_date}</td>
+                        <td>${rental.email}<br>${rental.phone}</td>
+                        <td>${rental.start_date} - ${rental.end_date}</td>
                         <td>${rental.price}€</td>
                         <td><span class="status-badge ${rental.status}">${getStatusText(rental.status)}</span></td>
-                        <td>${getActionButtons(rental)}</td>
+                        <td class="actions-cell">${getActionButtons(rental)}</td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -249,7 +251,8 @@
         
         function getStatusText(status) {
             const texts = {
-                pending: 'Odottaa',
+                pending: 'Odottaa hyväksyntää',
+                approved: 'Hyväksytty',
                 invoiced: 'Laskutettu',
                 paid: 'Maksettu'
             };
@@ -257,83 +260,66 @@
         }
         
         function getActionButtons(rental) {
+            let buttons = '';
             if (rental.status === 'pending') {
-                return `<button class="btn btn--primary action-btn" onclick="sendInvoice(${rental.id})">Lähetä lasku</button>`;
+                buttons += `<button class="btn btn--primary action-btn" onclick="approveRental(${rental.id})">Hyväksy</button>`;
+            } else if (rental.status === 'approved') {
+                buttons += `<button class="btn btn--primary action-btn" onclick="sendInvoice(${rental.id})">Lähetä lasku</button>`;
             } else if (rental.status === 'invoiced') {
-                return `<button class="btn btn--primary action-btn" onclick="markAsPaid(${rental.id})">Merkitse maksetuksi</button>`;
+                buttons += `<button class="btn btn--primary action-btn" onclick="markAsPaid(${rental.id})">Merkitse maksetuksi</button>`;
             } else if (rental.status === 'paid' && rental.generator_id) {
-                return `<button class="btn btn--secondary action-btn" onclick="returnGenerator(${rental.generator_id})">Palauta aggregaatti</button>`;
+                buttons += `<button class="btn btn--secondary action-btn" onclick="returnGenerator(${rental.generator_id})">Palauta</button>`;
             }
-            return '-';
+            // Add delete button for all statuses
+            buttons += `<button class="btn delete-btn" onclick="deleteRental(${rental.id})">Poista</button>`;
+            return buttons;
+        }
+
+        async function approveRental(rentalId) {
+            if (!confirm('Hyväksy varaus ja lähetä vahvistus asiakkaalle?')) return;
+            await fetch(`${API_BASE}/api/rentals/${rentalId}/approve`, { method: 'POST' });
+            loadAll();
         }
         
         async function sendInvoice(rentalId) {
             if (!confirm('Lähetä lasku asiakkaalle?')) return;
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/rentals/${rentalId}/invoice`, {
-                    method: 'POST'
-                });
-                
-                if (response.ok) {
-                    alert('Lasku lähetetty!');
-                    loadRentals();
-                }
-            } catch (error) {
-                console.error('Error sending invoice:', error);
-                alert('Virhe laskun lähetyksessä');
-            }
+            await fetch(`${API_BASE}/api/rentals/${rentalId}/invoice`, { method: 'POST' });
+            loadRentals();
         }
         
         async function markAsPaid(rentalId) {
-            if (!confirm('Merkitse varaus maksetuksi?')) return;
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/rentals/${rentalId}/paid`, {
-                    method: 'POST'
-                });
-                
-                if (response.ok) {
-                    alert('Maksu rekisteröity!');
-                    loadRentals();
-                    loadGeneratorStatus();
-                } else {
-                    const error = await response.json();
-                    alert(error.error || 'Virhe maksun rekisteröinnissä');
-                }
-            } catch (error) {
-                console.error('Error marking as paid:', error);
-                alert('Virhe maksun rekisteröinnissä');
+            if (!confirm('Merkitse varaus maksetuksi? Tämä varaa yhden aggregaatin.')) return;
+            const response = await fetch(`${API_BASE}/api/rentals/${rentalId}/paid`, { method: 'POST' });
+            if (!response.ok) {
+                const error = await response.json();
+                alert(`Virhe: ${error.error}`);
             }
+            loadAll();
         }
         
         async function returnGenerator(generatorId) {
             if (!confirm('Palauta aggregaatti saataville?')) return;
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/generators/${generatorId}/return`, {
-                    method: 'POST'
-                });
-                
-                if (response.ok) {
-                    alert('Aggregaatti palautettu!');
-                    loadGeneratorStatus();
-                }
-            } catch (error) {
-                console.error('Error returning generator:', error);
-                alert('Virhe palautuksessa');
-            }
+            await fetch(`${API_BASE}/api/generators/${generatorId}/return`, { method: 'POST' });
+            loadAll();
+        }
+
+        async function deleteRental(rentalId) {
+            if (!confirm('Haluatko varmasti poistaa tämän varauksen? Toimintoa ei voi perua.')) return;
+            await fetch(`${API_BASE}/api/rentals/${rentalId}`, { method: 'DELETE' });
+            loadAll();
+        }
+
+        async function toggleGeneratorActive(generatorId) {
+            const action = event.target.textContent.trim().toLowerCase();
+            if (!confirm(`Haluatko varmasti ${action}?`)) return;
+            await fetch(`${API_BASE}/api/generators/${generatorId}/toggle-active`, { method: 'POST' });
+            loadAll();
         }
         
         function filterRentals(status) {
             currentFilter = status;
-            
-            // Update active tab
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
-            
             loadRentals();
         }
     </script>
