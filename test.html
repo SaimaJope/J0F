@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JobFuture Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+        }
+        .ok { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>JobFuture System Diagnostic</h1>
+    
+    <div id="css-test" class="status">CSS: Checking...</div>
+    <div id="js-test" class="status">JavaScript: Checking...</div>
+    <div id="api-test" class="status">API: Checking...</div>
+    <div id="files-test" class="status">Files: Checking...</div>
+    
+    <h2>Debug Info:</h2>
+    <pre id="debug"></pre>
+
+    <script>
+        // Test if JavaScript works
+        document.getElementById('js-test').textContent = 'JavaScript: OK';
+        document.getElementById('js-test').className = 'status ok';
+        
+        // Test CSS
+        document.getElementById('css-test').textContent = 'CSS: OK (inline styles working)';
+        document.getElementById('css-test').className = 'status ok';
+        
+        // Test API
+        fetch('/api/generators/availability')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('api-test').textContent = `API: OK - ${data.available}/3 generators available`;
+                document.getElementById('api-test').className = 'status ok';
+            })
+            .catch(err => {
+                document.getElementById('api-test').textContent = 'API: ERROR - ' + err.message;
+                document.getElementById('api-test').className = 'status error';
+            });
+            
+        // Show debug info
+        document.getElementById('debug').textContent = JSON.stringify({
+            url: window.location.href,
+            origin: window.location.origin,
+            pathname: window.location.pathname,
+            userAgent: navigator.userAgent
+        }, null, 2);
+        
+        // Test external files
+        const testFiles = ['style.css', 'script.js', 'logo.png'];
+        Promise.all(testFiles.map(file => 
+            fetch('/' + file).then(res => ({file, ok: res.ok, status: res.status}))
+        )).then(results => {
+            const allOk = results.every(r => r.ok);
+            document.getElementById('files-test').innerHTML = 'Files: ' + 
+                results.map(r => `${r.file}: ${r.ok ? '✓' : '✗ ' + r.status}`).join(', ');
+            document.getElementById('files-test').className = 'status ' + (allOk ? 'ok' : 'error');
+        });
+    </script>
+</body>
+</html>

@@ -1,233 +1,241 @@
-// Simple rental system backend - Clean, functional, Nordic simplicity
+// Simple rental system backend - Fixed for production
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs').promises;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware - Clean and essential
+// Middleware - FIXED static file serving
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public')); // Serve your HTML/CSS/JS files from 'public' folder
 
-// Initialize SQLite database - Simple, file-based, perfect for beginners
-const db = new sqlite3.Database('./rentals.db');
-
-// Create tables if they don't exist
-db.serialize(() => {
-    // Rental requests table
-    db.run(`CREATE TABLE IF NOT EXISTS rentals (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        start_date TEXT NOT NULL,
-        end_date TEXT NOT NULL,
-        delivery_type TEXT NOT NULL,
-        address TEXT,
-        price REAL NOT NULL,
-        status TEXT DEFAULT 'pending',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        generator_id INTEGER
-    )`);
-    
-    // Generators table - Track your 3 generators
-    db.run(`CREATE TABLE IF NOT EXISTS generators (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        is_available INTEGER DEFAULT 1
-    )`);
-    
-    // Initialize 3 generators if not exists
-    db.get("SELECT COUNT(*) as count FROM generators", (err, row) => {
-        if (row.count === 0) {
-            const stmt = db.prepare("INSERT INTO generators (name) VALUES (?)");
-            stmt.run("Generator 1");
-            stmt.run("Generator 2");
-            stmt.run("Generator 3");
-            stmt.finalize();
+// Serve static files with proper MIME types
+app.use(express.static(__dirname, {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css');
+        } else if (filePath.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript');
+        } else if (filePath.endsWith('.png')) {
+            res.setHeader('Content-Type', 'image/png');
+        } else if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
+            res.setHeader('Content-Type', 'image/jpeg');
         }
-    });
-});
+    }
+}));
 
-// API ENDPOINTS - Clean, RESTful design
+// Data file paths
+const RENTALS_FILE = './rentals.json';
+const GENERATORS_FILE = './generators.json';
 
-// 1. Create rental request (from your existing form)
-app.post('/api/rentals', (req, res) => {
-    const { name, email, phone, startDate, endDate, delivery, address, price } = req.body;
-    
-    db.run(
-        `INSERT INTO rentals (name, email, phone, start_date, end_date, delivery_type, address, price) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [name, email, phone, startDate, endDate, delivery, address || '', parseFloat(price)],
-        function(err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            res.json({ 
-                id: this.lastID,
-                message: 'Rental request created successfully' 
-            });
-        }
-    );
-});
-
-// 2. Get all rentals (for admin)
-app.get('/api/admin/rentals', (req, res) => {
-    const status = req.query.status || 'all';
-    let query = "SELECT * FROM rentals";
-    
-    if (status !== 'all') {
-        query += " WHERE status = ?";
+// Initialize data files
+async function initializeData() {
+    try {
+        await fs.access(RENTALS_FILE);
+    } catch {
+        await fs.writeFile(RENTALS_FILE, JSON.stringify([]));
     }
     
-    query += " ORDER BY created_at DESC";
-    
-    db.all(query, status !== 'all' ? [status] : [], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
-        }
-        res.json(rows);
-    });
-});
+    try {
+        await fs.access(GENERATORS_FILE);
+    } catch {
+        const generators = [
+            { id: 1, name: "Generator 1", is_available: true },
+            { id: 2, name: "Generator 2", is_available: true },
+            { id: 3, name: "Generator 3", is_available: true }
+        ];
+        await fs.writeFile(GENERATORS_FILE, JSON.stringify(generators));
+    }
+}
 
-// 3. Send invoice (update status to 'invoiced')
-app.post('/api/rentals/:id/invoice', (req, res) => {
-    const rentalId = req.params.id;
-    
-    // In real implementation, you would:
-    // 1. Generate PDF invoice
-    // 2. Send email with PDF attachment
-    // For now, we just update the status
-    
-    db.run(
-        "UPDATE rentals SET status = 'invoiced' WHERE id = ?",
-        [rentalId],
-        function(err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            
-            // Simulate email sending
-            console.log(`Invoice sent for rental ${rentalId}`);
-            res.json({ message: 'Invoice sent successfully' });
-        }
-    );
-});
+// Helper functions
+async function readRentals() {
+    const data = await fs.readFile(RENTALS_FILE, 'utf-8');
+    return JSON.parse(data);
+}
 
-// 4. Mark as paid (for mobile/desktop app)
-app.post('/api/rentals/:id/paid', (req, res) => {
-    const rentalId = req.params.id;
-    
-    db.serialize(() => {
-        // Start transaction
-        db.run("BEGIN TRANSACTION");
+async function writeRentals(rentals) {
+    await fs.writeFile(RENTALS_FILE, JSON.stringify(rentals, null, 2));
+}
+
+async function readGenerators() {
+    const data = await fs.readFile(GENERATORS_FILE, 'utf-8');
+    return JSON.parse(data);
+}
+
+async function writeGenerators(generators) {
+    await fs.writeFile(GENERATORS_FILE, JSON.stringify(generators, null, 2));
+}
+
+// API ENDPOINTS
+
+// Create rental request
+app.post('/api/rentals', async (req, res) => {
+    try {
+        const { name, email, phone, startDate, endDate, delivery, address, price } = req.body;
+        const rentals = await readRentals();
         
-        // Get rental details
-        db.get("SELECT * FROM rentals WHERE id = ?", [rentalId], (err, rental) => {
-            if (err || !rental) {
-                db.run("ROLLBACK");
-                res.status(404).json({ error: 'Rental not found' });
-                return;
-            }
-            
-            // Find available generator
-            db.get("SELECT id FROM generators WHERE is_available = 1 LIMIT 1", (err, generator) => {
-                if (err || !generator) {
-                    db.run("ROLLBACK");
-                    res.status(400).json({ error: 'No generators available' });
-                    return;
-                }
-                
-                // Update rental with generator assignment
-                db.run(
-                    "UPDATE rentals SET status = 'paid', generator_id = ? WHERE id = ?",
-                    [generator.id, rentalId],
-                    (err) => {
-                        if (err) {
-                            db.run("ROLLBACK");
-                            res.status(500).json({ error: err.message });
-                            return;
-                        }
-                        
-                        // Mark generator as unavailable
-                        db.run(
-                            "UPDATE generators SET is_available = 0 WHERE id = ?",
-                            [generator.id],
-                            (err) => {
-                                if (err) {
-                                    db.run("ROLLBACK");
-                                    res.status(500).json({ error: err.message });
-                                    return;
-                                }
-                                
-                                db.run("COMMIT");
-                                res.json({ 
-                                    message: 'Payment recorded',
-                                    generatorId: generator.id 
-                                });
-                            }
-                        );
-                    }
-                );
-            });
+        const newRental = {
+            id: Date.now(),
+            name,
+            email,
+            phone,
+            start_date: startDate,
+            end_date: endDate,
+            delivery_type: delivery,
+            address: address || '',
+            price: parseFloat(price),
+            status: 'pending',
+            created_at: new Date().toISOString(),
+            generator_id: null
+        };
+        
+        rentals.push(newRental);
+        await writeRentals(rentals);
+        
+        res.json({ 
+            id: newRental.id,
+            message: 'Rental request created successfully' 
         });
-    });
+    } catch (err) {
+        console.error('Error creating rental:', err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// 5. Check generator availability
-app.get('/api/generators/availability', (req, res) => {
-    const { startDate, endDate } = req.query;
-    
-    // For MVP, we'll just count available generators
-    // In production, you'd check date overlaps
-    db.get(
-        "SELECT COUNT(*) as available FROM generators WHERE is_available = 1",
-        (err, row) => {
-            if (err) {
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            res.json({ 
-                total: 3,
-                available: row.available,
-                unavailable: 3 - row.available
-            });
+// Get all rentals
+app.get('/api/admin/rentals', async (req, res) => {
+    try {
+        const status = req.query.status || 'all';
+        let rentals = await readRentals();
+        
+        if (status !== 'all') {
+            rentals = rentals.filter(r => r.status === status);
         }
-    );
+        
+        rentals.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        res.json(rentals);
+    } catch (err) {
+        console.error('Error getting rentals:', err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// 6. Return generator (for admin/app)
-app.post('/api/generators/:id/return', (req, res) => {
-    const generatorId = req.params.id;
-    
-    db.run(
-        "UPDATE generators SET is_available = 1 WHERE id = ?",
-        [generatorId],
-        function(err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-                return;
-            }
+// Send invoice
+app.post('/api/rentals/:id/invoice', async (req, res) => {
+    try {
+        const rentalId = parseInt(req.params.id);
+        const rentals = await readRentals();
+        
+        const rental = rentals.find(r => r.id === rentalId);
+        if (rental) {
+            rental.status = 'invoiced';
+            await writeRentals(rentals);
+            res.json({ message: 'Invoice sent successfully' });
+        } else {
+            res.status(404).json({ error: 'Rental not found' });
+        }
+    } catch (err) {
+        console.error('Error sending invoice:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Mark as paid
+app.post('/api/rentals/:id/paid', async (req, res) => {
+    try {
+        const rentalId = parseInt(req.params.id);
+        const rentals = await readRentals();
+        const generators = await readGenerators();
+        
+        const rental = rentals.find(r => r.id === rentalId);
+        if (!rental) {
+            return res.status(404).json({ error: 'Rental not found' });
+        }
+        
+        const availableGen = generators.find(g => g.is_available);
+        if (!availableGen) {
+            return res.status(400).json({ error: 'No generators available' });
+        }
+        
+        rental.status = 'paid';
+        rental.generator_id = availableGen.id;
+        availableGen.is_available = false;
+        
+        await writeRentals(rentals);
+        await writeGenerators(generators);
+        
+        res.json({ 
+            message: 'Payment recorded',
+            generatorId: availableGen.id 
+        });
+    } catch (err) {
+        console.error('Error marking as paid:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Check availability
+app.get('/api/generators/availability', async (req, res) => {
+    try {
+        const generators = await readGenerators();
+        const available = generators.filter(g => g.is_available).length;
+        
+        res.json({ 
+            total: 3,
+            available: available,
+            unavailable: 3 - available
+        });
+    } catch (err) {
+        console.error('Error checking availability:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Return generator
+app.post('/api/generators/:id/return', async (req, res) => {
+    try {
+        const generatorId = parseInt(req.params.id);
+        const generators = await readGenerators();
+        
+        const generator = generators.find(g => g.id === generatorId);
+        if (generator) {
+            generator.is_available = true;
+            await writeGenerators(generators);
             res.json({ message: 'Generator returned successfully' });
+        } else {
+            res.status(404).json({ error: 'Generator not found' });
         }
-    );
+    } catch (err) {
+        console.error('Error returning generator:', err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// Serve admin page
+// Serve specific files with correct paths
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+    res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Visit http://localhost:${PORT} for the main site`);
-    console.log(`Visit http://localhost:${PORT}/admin for the admin panel`);
+// Catch-all for debugging
+app.use((req, res, next) => {
+    console.log(`404: ${req.method} ${req.url}`);
+    res.status(404).send('Not found');
+});
+
+// Initialize and start
+initializeData().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+        console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`Static files served from: ${__dirname}`);
+    });
+}).catch(err => {
+    console.error('Failed to initialize:', err);
 });
