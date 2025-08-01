@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Kirjautuminen - JobFuture</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: var(--color-off-white);
+        }
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: var(--space-xl);
+            background: var(--color-pure-white);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .login-logo {
+            height: 50px;
+            margin-bottom: var(--space-lg);
+        }
+        .login-title {
+            margin-bottom: var(--space-md);
+            color: var(--color-charcoal);
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: var(--space-sm);
+            border-radius: var(--radius);
+            margin-bottom: var(--space-md);
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="logo.png" alt="JobFuture" class="login-logo">
+        <h2 class="login-title">Admin Kirjautuminen</h2>
+
+        <!-- This form will post the credentials to our server -->
+        <form action="/login" method="POST">
+            <div class="form-group" style="text-align: left;">
+                <label for="username">Käyttäjätunnus</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label for="password">Salasana</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full">Kirjaudu sisään</button>
+        </form>
+    </div>
+</body>
+</html>
