@@ -1,6 +1,6 @@
 // =================================================================
 // JobFuture Rental System Backend
-// Final Version: Secure, Session-Based Authentication
+// Final Production Version - Correct & Secure Architecture
 // =================================================================
 
 // --- 1. IMPORTS ---
@@ -8,92 +8,91 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs').promises;
-const session = require('express-session'); // For session-based login
+const session = require('express-session');
 
 // --- 2. INITIALIZATION ---
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- 3. PATH CONFIGURATION ---
-// This robustly defines paths, working both locally and on Render.
-const publicPath = path.join(__dirname, 'public');
+// --- 3. PATH DEFINITIONS ---
+// Define absolute paths to our directories to prevent any ambiguity.
+const publicPath = path.join(__dirname, 'public'); // For truly public assets (CSS, images)
+const viewsPath = path.join(__dirname, 'views');   // For protected HTML pages
 const RENTALS_FILE = path.join(__dirname, 'rentals.json');
 const GENERATORS_FILE = path.join(__dirname, 'generators.json');
 
 // --- 4. CORE MIDDLEWARE ---
-app.use(cors()); // Allows cross-origin requests
-app.use(express.json()); // Parses incoming JSON payloads
-app.use(express.urlencoded({ extended: true })); // Parses form data from the login page
-app.use(express.static(publicPath)); // Serves all static files (HTML, CSS, images) from the 'public' directory
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// CRITICAL: This line ONLY serves assets from the 'public' directory.
+// It CANNOT access the 'views' directory. This is key to our security.
+app.use(express.static(publicPath));
 
 // --- 5. SESSION AUTHENTICATION SETUP ---
-// This is the heart of the secure login system.
 app.use(session({
-    // The secret is used to sign the session ID cookie. Use a long, random string.
     secret: process.env.SESSION_SECRET || 'a-very-strong-default-secret-for-local-testing',
-    resave: false, // Don't save session if unmodified
-    saveUninitialized: false, // Don't create session until something stored
+    resave: false,
+    saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production', // In production (on Render), only send cookie over HTTPS
-        httpOnly: true, // IMPORTANT: Prevents client-side JS from accessing the cookie, mitigating XSS attacks.
-        maxAge: 1000 * 60 * 60 * 24 // Cookie is valid for 24 hours
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 // 24 hours
     }
 }));
 
-// Custom middleware to check if a user is authenticated.
-// This function acts as a gatekeeper for all protected routes.
+// --- 6. SECURITY GATEKEEPER MIDDLEWARE ---
+// This function checks if a user is logged in. It will protect our routes.
 const isAuthenticated = (req, res, next) => {
     if (req.session.user) {
-        // The user has a valid session. Proceed to the requested route.
-        next();
-    } else {
-        // No valid session. Redirect to the login page.
-        res.redirect('/login');
+        return next(); // User is logged in, proceed.
     }
+    // User is NOT logged in. Redirect them to the login page.
+    res.redirect('/login');
 };
 
-// --- 6. AUTHENTICATION ROUTES ---
-// Serves the login page.
+// --- 7. ROUTE HANDLERS ---
+
+// PAGE SERVING ROUTES
+// A request to '/' is handled by the express.static middleware, which serves index.html from 'public'.
+
+// Serves the login page. This route is public.
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(publicPath, 'login.html'));
+    res.sendFile(path.join(viewsPath, 'login.html'));
 });
 
+// Serves the admin page. This route is PROTECTED by our isAuthenticated middleware.
+// A user cannot get this page without a valid session.
+app.get('/admin', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(viewsPath, 'admin.html'));
+});
+
+// AUTHENTICATION API ROUTES
 // Handles the login form submission.
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-
-    // Securely get credentials from environment variables, with defaults for local testing.
     const adminUser = process.env.ADMIN_USER || 'admin';
     const adminPass = process.env.ADMIN_PASSWORD || 'password';
 
     if (username === adminUser && password === adminPass) {
-        // Credentials are valid. Create a user object on the session.
         req.session.user = { username: username };
-        // Redirect the user to the admin panel.
-        res.redirect('/admin');
+        res.redirect('/admin'); // Success! Redirect to the protected admin page.
     } else {
-        // Invalid credentials. Send them back to the login page to try again.
-        res.redirect('/login');
+        res.redirect('/login'); // Failure. Redirect back to login.
     }
 });
 
-// Handles logging out.
+// Handles logout.
 app.get('/logout', (req, res) => {
     req.session.destroy(err => {
-        if (err) {
-            // If there's an error destroying the session, redirect to admin anyway.
-            return res.redirect('/admin');
-        }
-        // Clear the session cookie and redirect to the login page.
-        res.clearCookie('connect.sid'); // 'connect.sid' is the default session cookie name
+        if (err) { return res.redirect('/admin'); }
+        res.clearCookie('connect.sid');
         res.redirect('/login');
     });
 });
 
-
-// --- 7. PUBLIC API ENDPOINTS (No Login Required) ---
-
-// Create a new rental request.
+// PUBLIC API ROUTES
 app.post('/api/rentals', async (req, res) => {
     try {
         const { name, email, phone, startDate, endDate, delivery, address, price } = req.body;
@@ -103,28 +102,21 @@ app.post('/api/rentals', async (req, res) => {
         await writeData(RENTALS_FILE, rentals);
         res.status(201).json({ id: newRental.id, message: 'Rental request created successfully' });
     } catch (err) {
-        console.error('Error creating rental:', err);
         res.status(500).json({ error: 'Failed to create rental request.' });
     }
 });
 
-// Get public availability of generators.
 app.get('/api/generators/availability', async (req, res) => {
     try {
         const generators = await readData(GENERATORS_FILE);
         const availableCount = generators.filter(g => g.is_active && g.is_available).length;
         res.json({ total: generators.length, available: availableCount, details: generators });
     } catch (err) {
-        console.error('Error checking availability:', err);
         res.status(500).json({ error: 'Failed to check availability.' });
     }
 });
 
-
-// --- 8. PROTECTED ADMIN API ENDPOINTS (Login Required) ---
-// All routes in this section use the 'isAuthenticated' middleware gatekeeper.
-
-// Get all rental information for the admin panel.
+// PROTECTED ADMIN API ROUTES
 app.get('/api/admin/rentals', isAuthenticated, async (req, res) => {
     try {
         const status = req.query.status || 'all';
@@ -135,12 +127,10 @@ app.get('/api/admin/rentals', isAuthenticated, async (req, res) => {
         rentals.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         res.json(rentals);
     } catch (err) {
-        console.error('Error getting rentals:', err);
         res.status(500).json({ error: 'Failed to retrieve rentals.' });
     }
 });
 
-// Delete a rental.
 app.delete('/api/rentals/:id', isAuthenticated, async (req, res) => {
     try {
         const rentalId = parseInt(req.params.id);
@@ -160,12 +150,10 @@ app.delete('/api/rentals/:id', isAuthenticated, async (req, res) => {
         await writeData(RENTALS_FILE, rentals);
         res.json({ message: 'Rental deleted successfully' });
     } catch (err) {
-        console.error('Error deleting rental:', err);
         res.status(500).json({ error: 'Failed to delete rental.' });
     }
 });
 
-// Approve a rental.
 app.post('/api/rentals/:id/approve', isAuthenticated, async (req, res) => {
     try {
         const rentalId = parseInt(req.params.id);
@@ -174,18 +162,15 @@ app.post('/api/rentals/:id/approve', isAuthenticated, async (req, res) => {
         if (rental && rental.status === 'pending') {
             rental.status = 'approved';
             await writeData(RENTALS_FILE, rentals);
-            console.log(`SIMULATING: Sending approval SMS and Email to ${rental.phone} / ${rental.email}`);
-            res.json({ message: 'Rental approved and notifications sent.' });
+            res.json({ message: 'Rental approved' });
         } else {
             res.status(404).json({ error: 'Rental not found or not in pending state.' });
         }
     } catch (err) {
-        console.error('Error approving rental:', err);
         res.status(500).json({ error: 'Failed to approve rental.' });
     }
 });
 
-// Mark a rental as invoiced.
 app.post('/api/rentals/:id/invoice', isAuthenticated, async (req, res) => {
     try {
         const rentalId = parseInt(req.params.id);
@@ -199,12 +184,10 @@ app.post('/api/rentals/:id/invoice', isAuthenticated, async (req, res) => {
             res.status(404).json({ error: 'Rental not found or not approved.' });
         }
     } catch (err) {
-        console.error('Error sending invoice:', err);
         res.status(500).json({ error: 'Failed to send invoice.' });
     }
 });
 
-// Mark a rental as paid and assign a generator.
 app.post('/api/rentals/:id/paid', isAuthenticated, async (req, res) => {
     try {
         const rentalId = parseInt(req.params.id);
@@ -221,12 +204,10 @@ app.post('/api/rentals/:id/paid', isAuthenticated, async (req, res) => {
         await writeData(GENERATORS_FILE, generators);
         res.json({ message: 'Payment recorded', generatorId: availableGen.id });
     } catch (err) {
-        console.error('Error marking as paid:', err);
         res.status(500).json({ error: 'Failed to mark as paid.' });
     }
 });
 
-// Toggle a generator's active status (in service / out of service).
 app.post('/api/generators/:id/toggle-active', isAuthenticated, async (req, res) => {
     try {
         const generatorId = parseInt(req.params.id);
@@ -240,12 +221,10 @@ app.post('/api/generators/:id/toggle-active', isAuthenticated, async (req, res) 
             res.status(404).json({ error: 'Generator not found' });
         }
     } catch (err) {
-        console.error('Error toggling generator status:', err);
         res.status(500).json({ error: 'Failed to toggle generator status.' });
     }
 });
 
-// Return a generator, making it available again.
 app.post('/api/generators/:id/return', isAuthenticated, async (req, res) => {
     try {
         const generatorId = parseInt(req.params.id);
@@ -259,62 +238,22 @@ app.post('/api/generators/:id/return', isAuthenticated, async (req, res) => {
             res.status(404).json({ error: 'Generator not found' });
         }
     } catch (err) {
-        console.error('Error returning generator:', err);
         res.status(500).json({ error: 'Failed to return generator.' });
     }
 });
 
-
-// --- 9. HTML PAGE SERVING ---
-
-// Serve the admin panel, but only if the user is authenticated.
-app.get('/admin', isAuthenticated, (req, res) => {
-    res.sendFile(path.join(publicPath, 'admin.html'));
-});
-
-// Serve the main public-facing homepage.
-app.get('/', (req, res) => {
-    res.sendFile(path.join(publicPath, 'index.html'));
-});
-
-
-// --- 10. DATA HELPERS & SERVER STARTUP ---
-
-// Function to initialize data files if they don't exist.
+// --- 8. SERVER STARTUP & DATA HELPERS ---
 async function initializeData() {
-    try {
-        await fs.access(RENTALS_FILE);
-    } catch {
-        await fs.writeFile(RENTALS_FILE, JSON.stringify([]));
-    }
-    try {
-        await fs.access(GENERATORS_FILE);
-    } catch {
-        const initialGenerators = [
-            { id: 1, name: "Aggregaatti 1", is_available: true, is_active: true },
-            { id: 2, name: "Aggregaatti 2", is_available: true, is_active: true },
-            { id: 3, name: "Aggregaatti 3", is_available: true, is_active: true }
-        ];
-        await fs.writeFile(GENERATORS_FILE, JSON.stringify(initialGenerators));
-    }
+    try { await fs.access(RENTALS_FILE); } catch { await fs.writeFile(RENTALS_FILE, JSON.stringify([])); }
+    try { await fs.access(GENERATORS_FILE); } catch { const initialGenerators = [{ id: 1, name: "Aggregaatti 1", is_available: true, is_active: true }, { id: 2, name: "Aggregaatti 2", is_available: true, is_active: true }, { id: 3, name: "Aggregaatti 3", is_available: true, is_active: true }]; await fs.writeFile(GENERATORS_FILE, JSON.stringify(initialGenerators)); }
 }
 
-// Helper function to read JSON data.
-async function readData(file) {
-    const data = await fs.readFile(file, 'utf-8');
-    return JSON.parse(data);
-}
+async function readData(file) { const data = await fs.readFile(file, 'utf-8'); return JSON.parse(data); }
+async function writeData(file, data) { await fs.writeFile(file, JSON.stringify(data, null, 2)); }
 
-// Helper function to write JSON data.
-async function writeData(file, data) {
-    await fs.writeFile(file, JSON.stringify(data, null, 2));
-}
-
-// Initialize data and then start the server.
 initializeData().then(() => {
     app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`);
-        console.log(`Serving static files from: ${publicPath}`);
     });
 }).catch(err => {
     console.error('FATAL: Failed to initialize data files. Server not started.', err);
