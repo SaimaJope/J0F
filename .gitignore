@@ -1,2 +1,5 @@
 node_modules/
-rentals.db
+*.db
+.DS_Store
+npm-debug.log*
+.env
