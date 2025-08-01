@@ -76,10 +76,13 @@ app.post('/login', (req, res) => {
     const adminPass = process.env.ADMIN_PASSWORD || 'password';
 
     if (username === adminUser && password === adminPass) {
+        // SUCCESS: Credentials are valid. Create a user object on the session.
         req.session.user = { username: username };
-        res.redirect('/admin'); // Success! Redirect to the protected admin page.
+        // Redirect the user to the admin panel.
+        res.redirect('/admin');
     } else {
-        res.redirect('/login'); // Failure. Redirect back to login.
+        // FAILURE: Redirect back to the login page WITH an error flag.
+        res.redirect('/login?error=true');
     }
 });
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Kirjautuminen - JobFuture</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css"> <!-- Use root-relative path for CSS -->
     <style>
         body {
             display: flex;
@@ -30,22 +30,29 @@
             margin-bottom: var(--space-md);
             color: var(--color-charcoal);
         }
+        /* [NEW] Style for the error message */
         .error-message {
+            display: none; /* Hidden by default */
             background: #f8d7da;
             color: #721c24;
             padding: var(--space-sm);
             border-radius: var(--radius);
             margin-bottom: var(--space-md);
             border: 1px solid #f5c6cb;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <img src="logo.png" alt="JobFuture" class="login-logo">
+        <img src="/logo.png" alt="JobFuture" class="login-logo"> <!-- Use root-relative path for image -->
         <h2 class="login-title">Admin Kirjautuminen</h2>
 
-        <!-- This form will post the credentials to our server -->
+        <!-- [NEW] Error message placeholder -->
+        <div id="errorMessage" class="error-message">
+            Virheellinen käyttäjätunnus tai salasana.
+        </div>
+
         <form action="/login" method="POST">
             <div class="form-group" style="text-align: left;">
                 <label for="username">Käyttäjätunnus</label>
@@ -58,5 +65,15 @@
             <button type="submit" class="btn btn--primary btn--full">Kirjaudu sisään</button>
         </form>
     </div>
+
+    <!-- [NEW] JavaScript to show the error message -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('error')) {
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>
