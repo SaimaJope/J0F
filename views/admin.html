@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JobFuture Admin - Varausten Hallinta</title>
+    
+    <!-- FAVICON-KOODI TÄHÄN -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#1b7a8c">
+    <meta name="theme-color" content="#ffffff">
+    <!-- FAVICON-KOODI LOPPUU -->
+    
     <link rel="stylesheet" href="style.css">
     <style>
         /* [MODIFIED] Added styles for admin logo */
@@ -43,13 +53,11 @@
         .refresh-btn { float: right; margin-bottom: var(--space-md); }
         .actions-cell { display: flex; flex-wrap: wrap; gap: 5px; }
 
-        /* [NEW] Responsive styles for mobile */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
                 gap: var(--space-md);
             }
-
             .refresh-btn {
                 float: none;
                 display: block;
@@ -57,22 +65,18 @@
                 text-align: center;
                 margin-bottom: var(--space-md);
             }
-
             .status-tabs {
                 overflow-x: auto;
                 white-space: nowrap;
                 -webkit-overflow-scrolling: touch;
-                padding-bottom: 10px; /* Space for scrollbar */
+                padding-bottom: 10px;
             }
             .tab {
-                flex-shrink: 0; /* Prevent tabs from shrinking */
+                flex-shrink: 0;
             }
-
-            /* Transform table into cards */
             .rentals-table thead {
                 display: none;
             }
-
             .rentals-table tr {
                 display: block;
                 border: 1px solid var(--color-light-gray);
@@ -81,20 +85,17 @@
                 padding: var(--space-sm);
                 box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             }
-
             .rentals-table td {
                 display: block;
                 text-align: right;
                 border-bottom: 1px dashed var(--color-light-gray);
                 padding: var(--space-sm) 0;
-                padding-left: 50%; /* Make space for the label */
+                padding-left: 50%;
                 position: relative;
             }
-
             .rentals-table td:last-child {
                 border-bottom: none;
             }
-
             .rentals-table td::before {
                 content: attr(data-label);
                 position: absolute;
@@ -104,12 +105,10 @@
                 font-weight: 600;
                 color: var(--color-charcoal);
             }
-            
             .actions-cell {
                 justify-content: flex-end;
             }
         }
-
     </style>
 </head>
 <body>
