@@ -6,11 +6,13 @@
     <title>JobFuture Admin - Varausten Hallinta</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* [MODIFIED] Added styles for admin logo */
         .admin-logo-img {
-            height: 40px;
+            height: 40px; /* Adjust size as needed */
             width: auto;
         }
 
+        /* Admin-specific styles - Minimal additions */
         .admin-header {
             background: var(--color-charcoal);
             color: var(--color-pure-white);
@@ -38,63 +40,32 @@
         .generator-card.status-rented { border-color: #ffc107; }
         .generator-card.status-inactive { border-color: #6c757d; background: #f1f1f1; }
         .generator-icon { font-size: 3rem; margin-bottom: var(--space-sm); }
+        .refresh-btn { float: right; margin-bottom: var(--space-md); }
         .actions-cell { display: flex; flex-wrap: wrap; gap: 5px; }
 
-        /* [NEW] Styles for export controls */
-        .admin-controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: var(--space-md);
-            margin-bottom: var(--space-lg);
-            background: var(--color-off-white);
-            padding: var(--space-md);
-            border-radius: var(--radius);
-        }
-        .export-controls {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: var(--space-sm);
-        }
-        .export-controls label {
-            font-weight: 500;
-        }
-        .export-controls input[type="date"] {
-            padding: var(--space-xs);
-            border: 1px solid var(--color-light-gray);
-            border-radius: var(--radius);
-        }
-
-        /* Responsive styles for mobile */
+        /* [NEW] Responsive styles for mobile */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
                 gap: var(--space-md);
             }
 
-            .admin-controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .export-controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .export-controls .btn {
+            .refresh-btn {
+                float: none;
+                display: block;
                 width: 100%;
                 text-align: center;
+                margin-bottom: var(--space-md);
             }
 
             .status-tabs {
                 overflow-x: auto;
                 white-space: nowrap;
                 -webkit-overflow-scrolling: touch;
-                padding-bottom: 10px;
+                padding-bottom: 10px; /* Space for scrollbar */
             }
             .tab {
-                flex-shrink: 0;
+                flex-shrink: 0; /* Prevent tabs from shrinking */
             }
 
             /* Transform table into cards */
@@ -116,7 +87,7 @@
                 text-align: right;
                 border-bottom: 1px dashed var(--color-light-gray);
                 padding: var(--space-sm) 0;
-                padding-left: 50%;
+                padding-left: 50%; /* Make space for the label */
                 position: relative;
             }
 
@@ -142,6 +113,7 @@
     </style>
 </head>
 <body>
+    <!-- Admin Header -->
     <header class="admin-header">
         <div class="container">
             <div class="header-content">
@@ -151,6 +123,7 @@
         </div>
     </header>
 
+    <!-- Main Content -->
     <main class="container">
         <section>
             <h2>Aggregaattien tila</h2>
@@ -158,19 +131,7 @@
         </section>
         <section>
             <h2>Varaukset</h2>
-            
-            <!-- [NEW] Admin Controls section with Refresh and Export -->
-            <div class="admin-controls">
-                <div class="export-controls">
-                    <label for="exportStartDate">Vie aikajanalta:</label>
-                    <input type="date" id="exportStartDate">
-                    <label for="exportEndDate"> - </label>
-                    <input type="date" id="exportEndDate">
-                    <button id="exportCsvBtn" class="btn btn--primary">Vie CSV</button>
-                </div>
-                <button class="btn btn--secondary" onclick="loadAll()">🔄 Päivitä kaikki</button>
-            </div>
-
+            <button class="btn btn--secondary refresh-btn" onclick="loadAll()">🔄 Päivitä kaikki</button>
             <div class="status-tabs">
                 <button class="tab active" onclick="filterRentals('all')">Kaikki</button>
                 <button class="tab" onclick="filterRentals('pending')">Odottaa hyväksyntää</button>
@@ -246,11 +207,7 @@
         });
 
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadAll();
-            // [NEW] Event listener for the export button
-            document.getElementById('exportCsvBtn').addEventListener('click', exportToCsv);
-        });
+        document.addEventListener('DOMContentLoaded', loadAll);
         
         function loadAll() {
             loadGeneratorStatus();
@@ -258,26 +215,77 @@
         }
 
         async function loadGeneratorStatus() {
-            // ... (no changes here)
+            try {
+                const response = await fetch(`${API_BASE}/api/generators/availability`);
+                if (!response.ok) throw new Error('Failed to load generators');
+                const data = await response.json();
+                const container = document.getElementById('generatorStatus');
+                container.innerHTML = '';
+                
+                data.details.forEach(gen => {
+                    let statusClass, statusText, icon;
+                    if (!gen.is_active) {
+                        statusClass = 'status-inactive'; statusText = 'Pois käytöstä'; icon = '❌';
+                    } else if (!gen.is_available) {
+                        statusClass = 'status-rented'; statusText = 'Vuokrattu'; icon = '🔒';
+                    } else {
+                        statusClass = 'status-available'; statusText = 'Saatavilla'; icon = '✅';
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = `generator-card ${statusClass}`;
+                    card.innerHTML = `
+                        <div>
+                            <div class="generator-icon">${icon}</div>
+                            <h4>${gen.name}</h4>
+                            <p>${statusText}</p>
+                        </div>
+                        <button class="btn btn--secondary" onclick="toggleGeneratorActive(${gen.id}, '${gen.is_active ? 'ottaa pois käytöstä' : 'ottaa käyttöön'}')">
+                            ${gen.is_active ? 'Ota pois käytöstä' : 'Ota käyttöön'}
+                        </button>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading generator status:', error);
+                if (error.message.includes('401')) {
+                    alert('Istunto vanhentunut. Päivitä sivu kirjautuaksesi uudelleen.');
+                }
+            }
         }
         
         async function loadRentals() {
-            // ... (no changes here, just the data-label attributes were added to the innerHTML)
-        }
-
-        // [NEW] CSV Export Function
-        function exportToCsv() {
-            const startDate = document.getElementById('exportStartDate').value;
-            const endDate = document.getElementById('exportEndDate').value;
-
-            if (!startDate || !endDate) {
-                alert('Valitse alku- ja loppupäivämäärä vientiä varten.');
-                return;
+            try {
+                const url = currentFilter === 'all' ? `${API_BASE}/api/admin/rentals` : `${API_BASE}/api/admin/rentals?status=${currentFilter}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to load rentals');
+                const rentals = await response.json();
+                const tbody = document.getElementById('rentalsTableBody');
+                tbody.innerHTML = '';
+                
+                if (rentals.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Ei varauksia tässä kategoriassa.</td></tr>';
+                    return;
+                }
+                
+                rentals.forEach(rental => {
+                    const row = document.createElement('tr');
+                    // [MODIFIED] Added data-label attributes to each <td> for mobile view
+                    row.innerHTML = `
+                        <td data-label="ID">${rental.id}</td>
+                        <td data-label="Nimi">${rental.name}</td>
+                        <td data-label="Yhteystiedot">${rental.email}<br>${rental.phone}</td>
+                        <td data-label="Toimitustapa">${getDeliveryInfo(rental)}</td>
+                        <td data-label="Ajankohta">${rental.start_date} - ${rental.end_date}</td>
+                        <td data-label="Hinta">${rental.price}€</td>
+                        <td data-label="Tila"><span class="status-badge ${rental.status}">${getStatusText(rental.status)}</span></td>
+                        <td data-label="Toiminnot" class="actions-cell">${getActionButtons(rental)}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading rentals:', error);
             }
-
-            // Redirecting the browser to the API endpoint triggers the download
-            const url = `${API_BASE}/api/admin/rentals/export?start=${startDate}&end=${endDate}`;
-            window.location.href = url;
         }
 
         function getDeliveryInfo(rental) {
@@ -359,4 +367,4 @@
         }
     </script>
 </body>
-</html>
+</html>```
