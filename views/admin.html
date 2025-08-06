@@ -42,6 +42,74 @@
         .generator-icon { font-size: 3rem; margin-bottom: var(--space-sm); }
         .refresh-btn { float: right; margin-bottom: var(--space-md); }
         .actions-cell { display: flex; flex-wrap: wrap; gap: 5px; }
+
+        /* [NEW] Responsive styles for mobile */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: var(--space-md);
+            }
+
+            .refresh-btn {
+                float: none;
+                display: block;
+                width: 100%;
+                text-align: center;
+                margin-bottom: var(--space-md);
+            }
+
+            .status-tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 10px; /* Space for scrollbar */
+            }
+            .tab {
+                flex-shrink: 0; /* Prevent tabs from shrinking */
+            }
+
+            /* Transform table into cards */
+            .rentals-table thead {
+                display: none;
+            }
+
+            .rentals-table tr {
+                display: block;
+                border: 1px solid var(--color-light-gray);
+                border-radius: var(--radius);
+                margin-bottom: var(--space-md);
+                padding: var(--space-sm);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+
+            .rentals-table td {
+                display: block;
+                text-align: right;
+                border-bottom: 1px dashed var(--color-light-gray);
+                padding: var(--space-sm) 0;
+                padding-left: 50%; /* Make space for the label */
+                position: relative;
+            }
+
+            .rentals-table td:last-child {
+                border-bottom: none;
+            }
+
+            .rentals-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 45%;
+                text-align: left;
+                font-weight: 600;
+                color: var(--color-charcoal);
+            }
+            
+            .actions-cell {
+                justify-content: flex-end;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -49,7 +117,6 @@
     <header class="admin-header">
         <div class="container">
             <div class="header-content">
-                <!-- [MODIFIED] Replaced H1 with logo -->
                 <img src="logo_admin.png" alt="JobFuture Admin" class="admin-logo-img">
                 <a href="/" class="btn btn--secondary">Takaisin sivustolle</a>
             </div>
@@ -58,7 +125,6 @@
 
     <!-- Main Content -->
     <main class="container">
-        <!-- Sections remain the same -->
         <section>
             <h2>Aggregaattien tila</h2>
             <div class="generator-status" id="generatorStatus"></div>
@@ -79,7 +145,6 @@
                         <th>ID</th>
                         <th>Nimi</th>
                         <th>Yhteystiedot</th>
-                        <!-- [NEW] New column for delivery type -->
                         <th>Toimitustapa</th>
                         <th>Ajankohta</th>
                         <th>Hinta</th>
@@ -199,23 +264,22 @@
                 tbody.innerHTML = '';
                 
                 if (rentals.length === 0) {
-                    // [MODIFIED] Colspan updated from 7 to 8
                     tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Ei varauksia tässä kategoriassa.</td></tr>';
                     return;
                 }
                 
                 rentals.forEach(rental => {
                     const row = document.createElement('tr');
-                    // [MODIFIED] Added a new table cell to display delivery info
+                    // [MODIFIED] Added data-label attributes to each <td> for mobile view
                     row.innerHTML = `
-                        <td>${rental.id}</td>
-                        <td>${rental.name}</td>
-                        <td>${rental.email}<br>${rental.phone}</td>
-                        <td>${getDeliveryInfo(rental)}</td>
-                        <td>${rental.start_date} - ${rental.end_date}</td>
-                        <td>${rental.price}€</td>
-                        <td><span class="status-badge ${rental.status}">${getStatusText(rental.status)}</span></td>
-                        <td class="actions-cell">${getActionButtons(rental)}</td>
+                        <td data-label="ID">${rental.id}</td>
+                        <td data-label="Nimi">${rental.name}</td>
+                        <td data-label="Yhteystiedot">${rental.email}<br>${rental.phone}</td>
+                        <td data-label="Toimitustapa">${getDeliveryInfo(rental)}</td>
+                        <td data-label="Ajankohta">${rental.start_date} - ${rental.end_date}</td>
+                        <td data-label="Hinta">${rental.price}€</td>
+                        <td data-label="Tila"><span class="status-badge ${rental.status}">${getStatusText(rental.status)}</span></td>
+                        <td data-label="Toiminnot" class="actions-cell">${getActionButtons(rental)}</td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -224,15 +288,13 @@
             }
         }
 
-        // [NEW] Helper function to format the delivery information for the table
         function getDeliveryInfo(rental) {
             if (rental.delivery_type === 'pickup') {
                 return 'Nouto';
             } else if (rental.delivery_type === 'delivery' && rental.address) {
-                // Use strong for the type and small for the address for better hierarchy
                 return `<strong>Toimitus</strong><br><small>${rental.address}</small>`;
             }
-            return 'Ei määritelty'; // Fallback for any old or incomplete data
+            return 'Ei määritelty';
         }
         
         function getStatusText(status) {
@@ -305,4 +367,4 @@
         }
     </script>
 </body>
-</html>
+</html>```
