@@ -11,6 +11,10 @@ const state = {
     activeGenerators: 0 // To store the number of active generators
 };
 
+// Lisätään uusi muuttuja tiedoston alkuun, muiden state-muuttujien joukkoon.
+// Tämä seuraa, onko lomaketta parhaillaan lähettämässä.
+let isSubmitting = false;
+
 // API Configuration
 const API_BASE = window.location.origin;
 
@@ -224,15 +228,32 @@ function initializeForm() {
 
 async function handleFormSubmit(e) {
     e.preventDefault();
+    
+    // TARKISTUS: Jos lomaketta jo lähetetään, älä tee mitään.
+    // Tämä on tehokkain tapa estää tuplalähetykset.
+    if (isSubmitting) {
+        return;
+    }
+
     if (!state.selectedStartDate || !state.selectedEndDate) {
         alert('Valitse vuokrausajankohta kalenterista.');
         return;
     }
     
+    // LUKITSE LÄHETYS: Asetetaan lippu päälle ja disabloidaan nappi.
+    isSubmitting = true;
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Lähetetään...';
+
     // Final availability check before submission
     await fetchData();
     if (state.activeGenerators === 0) {
         alert('Valitettavasti kaikki aggregaatit ovat varattuja. Pyyntöä ei voi lähettää.');
+        // VAPAUTA LUKKO, jos tarkistus epäonnistuu
+        isSubmitting = false; 
+        submitButton.disabled = false;
+        submitButton.textContent = 'Lähetä varauspyyntö';
         return;
     }
 
@@ -248,10 +269,6 @@ async function handleFormSubmit(e) {
         price: parseFloat(elements.priceEstimate.textContent)
     };
     
-    const submitButton = e.target.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
-    submitButton.textContent = 'Lähetetään...';
-    
     try {
         const response = await fetch(`${API_BASE}/api/rentals`, {
             method: 'POST',
@@ -262,18 +279,23 @@ async function handleFormSubmit(e) {
         
         showSuccessModal();
         resetForm();
-        await fetchData(); // Refresh availability and UI
-        renderCalendar(); // Re-render calendar with potentially new disabled state
+        await fetchData();
+        renderCalendar();
         
     } catch (error) {
         console.error('Error submitting form:', error);
         alert('Virhe lomakkeen lähetyksessä. Yritä uudelleen.');
     } finally {
-        // Re-enable button only if generators are still available
+        // VAPAUTA LUKKO AINA LOPUKSI, onnistui tai ei.
+        isSubmitting = false; 
+        // Päivitetään napin tila saatavuuden mukaan
         if(state.activeGenerators > 0) {
             submitButton.disabled = false;
+            submitButton.textContent = 'Lähetä varauspyyntö';
+        } else {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Ei saatavilla';
         }
-        submitButton.textContent = 'Lähetä varauspyyntö';
     }
 }
 
