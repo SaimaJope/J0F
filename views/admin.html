@@ -79,6 +79,8 @@
                         <th>ID</th>
                         <th>Nimi</th>
                         <th>Yhteystiedot</th>
+                        <!-- [NEW] New column for delivery type -->
+                        <th>Toimitustapa</th>
                         <th>Ajankohta</th>
                         <th>Hinta</th>
                         <th>Tila</th>
@@ -90,7 +92,7 @@
         </section>
     </main>
 
-    <!-- [NEW] Generic Confirmation Modal for Admin Actions -->
+    <!-- Generic Confirmation Modal for Admin Actions -->
     <div class="modal" id="adminConfirmModal">
         <div class="modal-content">
             <h3 id="adminModalTitle">Vahvista toiminto</h3>
@@ -104,11 +106,10 @@
 
 
     <script>
-        // [MODIFIED] All JavaScript logic is new or updated
         const API_BASE = window.location.origin;
         let currentFilter = 'all';
 
-        // --- [NEW] MODAL HANDLING ---
+        // --- MODAL HANDLING ---
         const adminModal = {
             element: document.getElementById('adminConfirmModal'),
             title: document.getElementById('adminModalTitle'),
@@ -198,16 +199,19 @@
                 tbody.innerHTML = '';
                 
                 if (rentals.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Ei varauksia tässä kategoriassa.</td></tr>';
+                    // [MODIFIED] Colspan updated from 7 to 8
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Ei varauksia tässä kategoriassa.</td></tr>';
                     return;
                 }
                 
                 rentals.forEach(rental => {
                     const row = document.createElement('tr');
+                    // [MODIFIED] Added a new table cell to display delivery info
                     row.innerHTML = `
                         <td>${rental.id}</td>
                         <td>${rental.name}</td>
                         <td>${rental.email}<br>${rental.phone}</td>
+                        <td>${getDeliveryInfo(rental)}</td>
                         <td>${rental.start_date} - ${rental.end_date}</td>
                         <td>${rental.price}€</td>
                         <td><span class="status-badge ${rental.status}">${getStatusText(rental.status)}</span></td>
@@ -218,6 +222,17 @@
             } catch (error) {
                 console.error('Error loading rentals:', error);
             }
+        }
+
+        // [NEW] Helper function to format the delivery information for the table
+        function getDeliveryInfo(rental) {
+            if (rental.delivery_type === 'pickup') {
+                return 'Nouto';
+            } else if (rental.delivery_type === 'delivery' && rental.address) {
+                // Use strong for the type and small for the address for better hierarchy
+                return `<strong>Toimitus</strong><br><small>${rental.address}</small>`;
+            }
+            return 'Ei määritelty'; // Fallback for any old or incomplete data
         }
         
         function getStatusText(status) {
@@ -234,12 +249,11 @@
             } else if (rental.status === 'invoiced') {
                 buttons += `<button class="btn btn--primary action-btn" onclick="markAsPaid(${rental.id})">Merkitse maksetuksi</button>`;
             }
-            // [MODIFIED] The 'return' button is removed from the flow. Deletion is always possible.
             buttons += `<button class="btn delete-btn" onclick="deleteRental(${rental.id})">Poista</button>`;
             return buttons;
         }
 
-        // --- [MODIFIED] All action functions now use the custom modal with updated texts ---
+        // Action functions with modals
         function approveRental(rentalId) {
             adminModal.show('Hyväksy varaus', 'Hyväksytäänkö varaus? Tämä varaa yhden vapaan aggregaatin. Muista lähettää asiakkaalle vahvistusviesti.', async () => {
                 const response = await fetch(`${API_BASE}/api/rentals/${rentalId}/approve`, { method: 'POST' });
@@ -269,9 +283,6 @@
             });
         }
         
-        // [REMOVED] returnGenerator is no longer part of the standard workflow
-        // function returnGenerator(generatorId) { ... }
-
         function deleteRental(rentalId) {
             adminModal.show('Poista varaus', 'Haluatko varmasti poistaa tämän varauksen? Toimintoa ei voi perua. Jos aggregaatti oli varattu, se vapautuu.', async () => {
                 await fetch(`${API_BASE}/api/rentals/${rentalId}`, { method: 'DELETE' });
