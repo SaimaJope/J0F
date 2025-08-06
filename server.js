@@ -69,7 +69,7 @@ const transporter = nodemailer.createTransport({
 async function sendNewRentalNotification(rentalDetails) {
     try {
         const mailOptions = {
-            from: `"JobFuture Varausjärjestelmä" <${process.env.EMAIL_USER}>`, // Lähettäjän nimi ja osoite
+            from: `"JobFuture Varausjärjestelmä" <info@jobfuture.fi>`,
             to: 'info@jobfuture.fi', // <<-- 
             subject: `Uusi varauspyyntö: ${rentalDetails.name}`, // Sähköpostin otsikko
             
