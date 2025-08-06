@@ -122,19 +122,15 @@ app.get('/api/generators/availability', async (req, res) => {
     }
 });
 
-// Add this new route, maybe after the other public API routes
 app.get('/api/rentals/booked-dates', async (req, res) => {
     try {
         const rentals = await readData(RENTALS_FILE);
         const activeGeneratorsCount = (await readData(GENERATORS_FILE)).filter(g => g.is_active).length;
 
-        // [MODIFIED] Filter for rentals that are confirmed and occupy a generator
-        // A generator is considered occupied if the rental is 'approved' or 'invoiced'
         const confirmedRentals = rentals.filter(r => 
             ['approved', 'invoiced'].includes(r.status)
         );
 
-        // Extract the start and end dates
         const bookedPeriods = confirmedRentals.map(r => ({
             start: r.start_date,
             end: r.end_date
@@ -166,6 +162,74 @@ app.get('/api/admin/rentals', isAuthenticated, async (req, res) => {
     }
 });
 
+// [NEW] CSV EXPORT ROUTE
+app.get('/api/admin/rentals/export', isAuthenticated, async (req, res) => {
+    try {
+        const { start, end } = req.query;
+        if (!start || !end) {
+            return res.status(400).json({ error: 'Start and end dates are required.' });
+        }
+
+        const startDate = new Date(start);
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(end);
+        endDate.setHours(23, 59, 59, 999);
+
+        const allRentals = await readData(RENTALS_FILE);
+
+        // Helper to parse 'd.M.yyyy' format from JSON
+        const parseFinnishDate = (dateStr) => {
+            const parts = dateStr.split('.');
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+        };
+
+        const filteredRentals = allRentals.filter(r => {
+            // Filter by rental START date being within the selected range
+            const rentalStartDate = parseFinnishDate(r.start_date);
+            return rentalStartDate >= startDate && rentalStartDate <= endDate;
+        });
+
+        // Function to safely format a value for CSV
+        const escapeCsvCell = (cell) => {
+            if (cell === null || cell === undefined) return '';
+            const str = String(cell);
+            // If the cell contains a comma, a quote, or a newline, wrap it in double quotes
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                // Escape existing double quotes by doubling them
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
+        const headers = [
+            'ID', 'Nimi', 'Sähköposti', 'Puhelin', 'Toimitustapa', 'Osoite',
+            'Aloituspäivä', 'Lopetuspäivä', 'Hinta (€)', 'Tila', 'Luontiaika', 'Aggregaatti ID'
+        ];
+
+        let csv = headers.join(',') + '\n';
+
+        filteredRentals.forEach(r => {
+            const row = [
+                r.id, r.name, r.email, r.phone, r.delivery_type, r.address,
+                r.start_date, r.end_date, r.price, r.status, r.created_at, r.generator_id || ''
+            ].map(escapeCsvCell).join(',');
+            csv += row + '\n';
+        });
+
+        // Add BOM for Excel compatibility with UTF-8 characters
+        const bom = '\ufeff';
+
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="vuokraukset_${start}_-_${end}.csv"`);
+        res.status(200).send(bom + csv);
+
+    } catch (err) {
+        console.error('CSV Export Error:', err);
+        res.status(500).json({ error: 'Failed to export rentals.' });
+    }
+});
+
+
 app.delete('/api/rentals/:id', isAuthenticated, async (req, res) => {
     try {
         const rentalId = parseInt(req.params.id);
@@ -174,7 +238,6 @@ app.delete('/api/rentals/:id', isAuthenticated, async (req, res) => {
         const rentalIndex = rentals.findIndex(r => r.id === rentalId);
         if (rentalIndex === -1) return res.status(404).json({ error: 'Rental not found' });
         const rentalToDelete = rentals[rentalIndex];
-        // If a generator was assigned, make it available again
         if (rentalToDelete.generator_id) {
             const generator = generators.find(g => g.id === rentalToDelete.generator_id);
             if (generator) {
@@ -190,7 +253,6 @@ app.delete('/api/rentals/:id', isAuthenticated, async (req, res) => {
     }
 });
 
-// [MODIFIED] Approving now assigns and reserves a generator
 app.post('/api/rentals/:id/approve', isAuthenticated, async (req, res) => {
     try {
         const rentalId = parseInt(req.params.id);
@@ -237,7 +299,6 @@ app.post('/api/rentals/:id/invoice', isAuthenticated, async (req, res) => {
     }
 });
 
-// [MODIFIED] Marking as paid now completes the rental and releases the generator
 app.post('/api/rentals/:id/paid', isAuthenticated, async (req, res) => {
     try {
         const rentalId = parseInt(req.params.id);
@@ -251,7 +312,6 @@ app.post('/api/rentals/:id/paid', isAuthenticated, async (req, res) => {
 
         rental.status = 'paid';
 
-        // Make the assigned generator available again
         if (rental.generator_id) {
             const generator = generators.find(g => g.id === rental.generator_id);
             if (generator) {
@@ -284,27 +344,6 @@ app.post('/api/generators/:id/toggle-active', isAuthenticated, async (req, res) 
         res.status(500).json({ error: 'Failed to toggle generator status.' });
     }
 });
-
-// [REMOVED] This endpoint is no longer needed in the rental workflow.
-// The logic is now handled by the 'paid' status update.
-/*
-app.post('/api/generators/:id/return', isAuthenticated, async (req, res) => {
-    try {
-        const generatorId = parseInt(req.params.id);
-        const generators = await readData(GENERATORS_FILE);
-        const generator = generators.find(g => g.id === generatorId);
-        if (generator) {
-            generator.is_available = true;
-            await writeData(GENERATORS_FILE, generators);
-            res.json({ message: 'Generator returned successfully' });
-        } else {
-            res.status(404).json({ error: 'Generator not found' });
-        }
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to return generator.' });
-    }
-});
-*/
 
 // --- 8. SERVER STARTUP & DATA HELPERS ---
 async function initializeData() {
