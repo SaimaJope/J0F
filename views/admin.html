@@ -233,30 +233,33 @@
                 buttons += `<button class="btn btn--primary action-btn" onclick="sendInvoice(${rental.id})">Lähetä lasku</button>`;
             } else if (rental.status === 'invoiced') {
                 buttons += `<button class="btn btn--primary action-btn" onclick="markAsPaid(${rental.id})">Merkitse maksetuksi</button>`;
-            } else if (rental.status === 'paid' && rental.generator_id) {
-                buttons += `<button class="btn btn--secondary action-btn" onclick="returnGenerator(${rental.generator_id})">Palauta</button>`;
             }
+            // [MODIFIED] The 'return' button is removed from the flow. Deletion is always possible.
             buttons += `<button class="btn delete-btn" onclick="deleteRental(${rental.id})">Poista</button>`;
             return buttons;
         }
 
-        // --- [MODIFIED] All action functions now use the custom modal ---
+        // --- [MODIFIED] All action functions now use the custom modal with updated texts ---
         function approveRental(rentalId) {
-            adminModal.show('Hyväksy varaus', 'Lähetetäänkö asiakkaalle vahvistus varauksesta?', async () => {
-                await fetch(`${API_BASE}/api/rentals/${rentalId}/approve`, { method: 'POST' });
+            adminModal.show('Hyväksy varaus', 'Hyväksytäänkö varaus? Tämä varaa yhden vapaan aggregaatin. Muista lähettää asiakkaalle vahvistusviesti.', async () => {
+                const response = await fetch(`${API_BASE}/api/rentals/${rentalId}/approve`, { method: 'POST' });
+                 if (!response.ok) {
+                    const error = await response.json();
+                    alert(`Virhe: ${error.error}`);
+                }
                 loadAll();
             });
         }
         
         function sendInvoice(rentalId) {
-            adminModal.show('Lähetä lasku', 'Lähetetäänkö lasku asiakkaalle?', async () => {
+            adminModal.show('Lähetä lasku', 'Onko laite palautettu ja oletko valmis lähettämään laskun?', async () => {
                 await fetch(`${API_BASE}/api/rentals/${rentalId}/invoice`, { method: 'POST' });
                 loadRentals();
             });
         }
         
         function markAsPaid(rentalId) {
-            adminModal.show('Merkitse maksetuksi', 'Merkitäänkö varaus maksetuksi? Tämä varaa yhden vapaan aggregaatin.', async () => {
+            adminModal.show('Merkitse maksetuksi', 'Onko lasku maksettu? Tämä päättää vuokrauksen ja vapauttaa aggregaatin takaisin käyttöön.', async () => {
                 const response = await fetch(`${API_BASE}/api/rentals/${rentalId}/paid`, { method: 'POST' });
                 if (!response.ok) {
                     const error = await response.json();
@@ -266,15 +269,11 @@
             });
         }
         
-        function returnGenerator(generatorId) {
-            adminModal.show('Palauta aggregaatti', 'Palautetaanko tämä aggregaatti saataville?', async () => {
-                await fetch(`${API_BASE}/api/generators/${generatorId}/return`, { method: 'POST' });
-                loadAll();
-            });
-        }
+        // [REMOVED] returnGenerator is no longer part of the standard workflow
+        // function returnGenerator(generatorId) { ... }
 
         function deleteRental(rentalId) {
-            adminModal.show('Poista varaus', 'Haluatko varmasti poistaa tämän varauksen? Toimintoa ei voi perua.', async () => {
+            adminModal.show('Poista varaus', 'Haluatko varmasti poistaa tämän varauksen? Toimintoa ei voi perua. Jos aggregaatti oli varattu, se vapautuu.', async () => {
                 await fetch(`${API_BASE}/api/rentals/${rentalId}`, { method: 'DELETE' });
                 loadAll();
             });
