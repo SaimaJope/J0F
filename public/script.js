@@ -11,7 +11,8 @@ const state = {
     activeGenerators: 0 // To store the number of active generators
 };
 
-// Seuraa, onko lomaketta parhaillaan lähettämässä. Estää tuplaklikkaukset.
+// Lisätään uusi muuttuja tiedoston alkuun, muiden state-muuttujien joukkoon.
+// Tämä seuraa, onko lomaketta parhaillaan lähettämässä.
 let isSubmitting = false;
 
 // API Configuration
@@ -70,12 +71,12 @@ function updateAvailabilityDisplay() {
     if (state.activeGenerators > 0) {
         elements.heroSubtitle.innerHTML = `Vuokraa laadukas dieselaggregaatti työmaallesi. Toimitus tai nouto Leppävirralta.`;
         submitButton.disabled = false;
-        submitButton.querySelector('.btn-text').textContent = 'Lähetä varauspyyntö';
+        submitButton.textContent = 'Lähetä varauspyyntö';
     } else {
         elements.heroSubtitle.innerHTML = `Vuokraa laadukas dieselaggregaatti työmaallesi. Toimitus tai nouto Leppävirralta.<br>
         <strong style="color: #ff4444; margin-top: 10px; display: inline-block;">Kaikki aggregaatit ovat tällä hetkellä varattuja.</strong>`;
         submitButton.disabled = true;
-        submitButton.querySelector('.btn-text').textContent = 'Ei saatavilla';
+        submitButton.textContent = 'Ei saatavilla';
     }
 }
 
@@ -126,10 +127,12 @@ function renderCalendar() {
         
         const currentDate = new Date(year, month, day);
         
+        // Count how many rentals are active on this specific day
         const bookingsOnThisDay = state.bookedPeriods.filter(period => 
             currentDate >= period.start && currentDate <= period.end
         ).length;
 
+        // Disable past dates OR if the number of bookings is >= total active generators
         if (currentDate < today || bookingsOnThisDay >= state.activeGenerators) {
             dayElement.classList.add('disabled');
         } else {
@@ -194,7 +197,7 @@ function updatePrice() {
         elements.priceEstimate.textContent = '0€';
         return;
     }
-    const days = Math.max(1, Math.ceil((state.selectedEndDate - state.selectedStartDate) / (1000 * 60 * 60 * 24)) + 1);
+    const days = Math.max(1, Math.ceil((state.selectedEndDate - state.selectedStartDate) / (1000 * 60 * 60 * 24)));
     const finalPrice = days * state.pricePerDay;
     elements.priceEstimate.textContent = `${finalPrice}€`;
 }
@@ -223,36 +226,37 @@ function initializeForm() {
     elements.rentalForm.addEventListener('submit', handleFormSubmit);
 }
 
-
 async function handleFormSubmit(e) {
     e.preventDefault();
-    if (isSubmitting) return; // Estää tuplaklikkaukset
-
-    // Tarkista päivämäärät ensin
-    if (!state.selectedStartDate || !state.selectedEndDate) {
-        document.getElementById('dateErrorModal').classList.add('active');
+    
+    // TARKISTUS: Jos lomaketta jo lähetetään, älä tee mitään.
+    // Tämä on tehokkain tapa estää tuplalähetykset.
+    if (isSubmitting) {
         return;
     }
 
-    isSubmitting = true; // Lukitaan lähetys
+    if (!state.selectedStartDate || !state.selectedEndDate) {
+        alert('Valitse vuokrausajankohta kalenterista.');
+        return;
+    }
+    
+    // LUKITSE LÄHETYS: Asetetaan lippu päälle ja disabloidaan nappi.
+    isSubmitting = true;
     const submitButton = e.target.querySelector('button[type="submit"]');
-    const buttonText = submitButton.querySelector('.btn-text');
-    
-    // --- VAIHE 1: ALOITA PROSESSOINTI-ILME ---
-    submitButton.classList.add('loading'); // Lisää latausluokka (näyttää spinnerin)
     submitButton.disabled = true;
+    submitButton.textContent = 'Lähetetään...';
 
-    // --- VAIHE 2: DYNAAMINEN TEKSTIPALAUTE ---
-    // Muutetaan napin tekstiä vaiheittain, jotta tuntuu, että jotain tapahtuu.
-    setTimeout(() => { buttonText.textContent = 'Tarkistetaan tietoja...'; }, 0);
-    setTimeout(() => { buttonText.textContent = 'Vahvistetaan saatavuutta...'; }, 1200);
-    setTimeout(() => { buttonText.textContent = 'Lähetetään pyyntöä...'; }, 2400);
+    // Final availability check before submission
+    await fetchData();
+    if (state.activeGenerators === 0) {
+        alert('Valitettavasti kaikki aggregaatit ovat varattuja. Pyyntöä ei voi lähettää.');
+        // VAPAUTA LUKKO, jos tarkistus epäonnistuu
+        isSubmitting = false; 
+        submitButton.disabled = false;
+        submitButton.textContent = 'Lähetä varauspyyntö';
+        return;
+    }
 
-    // --- VAIHE 3: GARANTEERATTU MINIMIVIIVE ---
-    // Määritellään kaksi erillistä lupausta (Promise):
-    // 1. Todellinen verkkopyyntö palvelimelle.
-    // 2. Keinotekoinen viive, joka kestää vähintään 3.5 sekuntia.
-    
     const formData = new FormData(e.target);
     const data = {
         startDate: formatDate(state.selectedStartDate),
@@ -264,41 +268,34 @@ async function handleFormSubmit(e) {
         address: formData.get('address') || '',
         price: parseFloat(elements.priceEstimate.textContent)
     };
-
-    const networkPromise = fetch(`${API_BASE}/api/rentals`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    });
-
-    const delayPromise = new Promise(resolve => setTimeout(resolve, 3500));
-
+    
     try {
-        // Promise.all odottaa, että SEKÄ verkkopyyntö on valmis ETTÄ minimiaika on kulunut.
-        const [response] = await Promise.all([networkPromise, delayPromise]);
-
-        if (!response.ok) {
-            // Jos verkkopyyntö epäonnistui, heitetään virhe.
-            throw new Error('Booking submission failed');
-        }
+        const response = await fetch(`${API_BASE}/api/rentals`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error('Booking submission failed');
         
-        // Kaikki meni hyvin! Näytetään onnistumisikkuna.
         showSuccessModal();
         resetForm();
         await fetchData();
         renderCalendar();
-
+        
     } catch (error) {
         console.error('Error submitting form:', error);
-        alert('Pyyntö epäonnistui. Tarkista tiedot ja yritä uudelleen.');
+        alert('Virhe lomakkeen lähetyksessä. Yritä uudelleen.');
     } finally {
-        // --- LOPUKSI: PALAUTA NAPPI NORMAALIKSI ---
-        // Tämä suoritetaan aina, onnistui lähetys tai ei.
-        isSubmitting = false; // Vapautetaan lukko
-        submitButton.classList.remove('loading'); // Poistaa latausluokan (piilottaa spinnerin)
-        submitButton.disabled = false;
-        // Palautetaan napin tila saatavuuden mukaan
-        updateAvailabilityDisplay();
+        // VAPAUTA LUKKO AINA LOPUKSI, onnistui tai ei.
+        isSubmitting = false; 
+        // Päivitetään napin tila saatavuuden mukaan
+        if(state.activeGenerators > 0) {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Lähetä varauspyyntö';
+        } else {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Ei saatavilla';
+        }
     }
 }
 
@@ -307,10 +304,7 @@ function showSuccessModal() {
 }
 
 function closeModal() {
-    // Tämä hakee KAIKKI aktiiviset modaalit ja poistaa niiltä 'active'-luokan.
-    document.querySelectorAll('.modal.active').forEach(modal => {
-        modal.classList.remove('active');
-    });
+    elements.modal.classList.remove('active');
 }
 
 function resetForm() {
@@ -320,6 +314,7 @@ function resetForm() {
     updateDateInputs();
     updatePrice();
     elements.addressGroup.style.display = 'none';
+    // Calendar is reset via the main flow
 }
 
 // Global functions for modal handling
@@ -347,7 +342,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 document.addEventListener('DOMContentLoaded', async () => {
     initializeGallery();
     initializeForm();
-    await fetchData();
-    updateAvailabilityDisplay();
-    initializeCalendar();
+    await fetchData(); // Fetch all booked dates and active generators
+    updateAvailabilityDisplay(); // Update hero text based on initial count
+    initializeCalendar(); // Render the calendar with the correct disabled dates
 });
