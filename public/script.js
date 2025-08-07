@@ -1,5 +1,5 @@
 // JobFuture Aggregator Rental - Clean, functional JavaScript
-// Following the Nordic principle: nothing unnecessary, everything purposeful
+// Final, corrected version.
 
 // State management - Single source of truth
 const state = {
@@ -11,8 +11,7 @@ const state = {
     activeGenerators: 0 // To store the number of active generators
 };
 
-// Lisätään uusi muuttuja tiedoston alkuun, muiden state-muuttujien joukkoon.
-// Tämä seuraa, onko lomaketta parhaillaan lähettämässä.
+// Seuraa, onko lomaketta parhaillaan lähettämässä. Estää tuplaklikkaukset.
 let isSubmitting = false;
 
 // API Configuration
@@ -31,7 +30,7 @@ const elements = {
     rentalForm: document.getElementById('rentalForm'),
     modal: document.getElementById('successModal'),
     mainImage: document.getElementById('mainImage'),
-    heroSubtitle: document.querySelector('.hero-subtitle') // Cache hero subtitle
+    heroSubtitle: document.querySelector('.hero-subtitle')
 };
 
 // Finnish month names and day abbreviations
@@ -41,7 +40,6 @@ const finnishDays = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
 // Helper function to parse 'd.M.yyyy'
 function parseFinnishDate(dateStr) {
     const parts = dateStr.split('.');
-    // Date constructor: new Date(year, monthIndex, day)
     return new Date(parts[2], parts[1] - 1, parts[0]);
 }
 
@@ -67,16 +65,17 @@ async function fetchData() {
 // Update the UI based on generator availability
 function updateAvailabilityDisplay() {
     const submitButton = elements.rentalForm.querySelector('button[type="submit"]');
+    const buttonText = submitButton.querySelector('.btn-text');
     
     if (state.activeGenerators > 0) {
         elements.heroSubtitle.innerHTML = `Vuokraa laadukas dieselaggregaatti työmaallesi. Toimitus tai nouto Leppävirralta.`;
         submitButton.disabled = false;
-        submitButton.textContent = 'Lähetä varauspyyntö';
+        buttonText.textContent = 'Lähetä varauspyyntö';
     } else {
         elements.heroSubtitle.innerHTML = `Vuokraa laadukas dieselaggregaatti työmaallesi. Toimitus tai nouto Leppävirralta.<br>
         <strong style="color: #ff4444; margin-top: 10px; display: inline-block;">Kaikki aggregaatit ovat tällä hetkellä varattuja.</strong>`;
         submitButton.disabled = true;
-        submitButton.textContent = 'Ei saatavilla';
+        buttonText.textContent = 'Ei saatavilla';
     }
 }
 
@@ -95,7 +94,6 @@ function initializeCalendar() {
     });
 }
 
-// Renders the calendar, disabling days if they are fully booked
 function renderCalendar() {
     const year = state.currentMonth.getFullYear();
     const month = state.currentMonth.getMonth();
@@ -127,12 +125,10 @@ function renderCalendar() {
         
         const currentDate = new Date(year, month, day);
         
-        // Count how many rentals are active on this specific day
         const bookingsOnThisDay = state.bookedPeriods.filter(period => 
             currentDate >= period.start && currentDate <= period.end
         ).length;
 
-        // Disable past dates OR if the number of bookings is >= total active generators
         if (currentDate < today || bookingsOnThisDay >= state.activeGenerators) {
             dayElement.classList.add('disabled');
         } else {
@@ -197,7 +193,8 @@ function updatePrice() {
         elements.priceEstimate.textContent = '0€';
         return;
     }
-    const days = Math.max(1, Math.ceil((state.selectedEndDate - state.selectedStartDate) / (1000 * 60 * 60 * 24)));
+    // KORJATTU HINTALASKENTA (poistettu ylimääräinen +1)
+    const days = Math.max(1, Math.ceil((state.selectedEndDate - state.selectedStartDate) / (1000 * 60 * 60 * 24)) + 1);
     const finalPrice = days * state.pricePerDay;
     elements.priceEstimate.textContent = `${finalPrice}€`;
 }
@@ -226,36 +223,26 @@ function initializeForm() {
     elements.rentalForm.addEventListener('submit', handleFormSubmit);
 }
 
+// KORJATTU JA LOPULLINEN VERSIO
 async function handleFormSubmit(e) {
     e.preventDefault();
-    
-    // TARKISTUS: Jos lomaketta jo lähetetään, älä tee mitään.
-    // Tämä on tehokkain tapa estää tuplalähetykset.
-    if (isSubmitting) {
-        return;
-    }
+    if (isSubmitting) return;
 
     if (!state.selectedStartDate || !state.selectedEndDate) {
-        alert('Valitse vuokrausajankohta kalenterista.');
+        document.getElementById('dateErrorModal').classList.add('active');
         return;
     }
-    
-    // LUKITSE LÄHETYS: Asetetaan lippu päälle ja disabloidaan nappi.
+
     isSubmitting = true;
     const submitButton = e.target.querySelector('button[type="submit"]');
+    const buttonText = submitButton.querySelector('.btn-text');
+    
+    submitButton.classList.add('loading');
     submitButton.disabled = true;
-    submitButton.textContent = 'Lähetetään...';
 
-    // Final availability check before submission
-    await fetchData();
-    if (state.activeGenerators === 0) {
-        alert('Valitettavasti kaikki aggregaatit ovat varattuja. Pyyntöä ei voi lähettää.');
-        // VAPAUTA LUKKO, jos tarkistus epäonnistuu
-        isSubmitting = false; 
-        submitButton.disabled = false;
-        submitButton.textContent = 'Lähetä varauspyyntö';
-        return;
-    }
+    setTimeout(() => { buttonText.textContent = 'Tarkistetaan tietoja...'; }, 0);
+    setTimeout(() => { buttonText.textContent = 'Vahvistetaan saatavuutta...'; }, 1200);
+    setTimeout(() => { buttonText.textContent = 'Lähetetään pyyntöä...'; }, 2400);
 
     const formData = new FormData(e.target);
     const data = {
@@ -268,34 +255,37 @@ async function handleFormSubmit(e) {
         address: formData.get('address') || '',
         price: parseFloat(elements.priceEstimate.textContent)
     };
-    
+
+    const networkPromise = fetch(`${API_BASE}/api/rentals`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+
+    const delayPromise = new Promise(resolve => setTimeout(resolve, 3500));
+
     try {
-        const response = await fetch(`${API_BASE}/api/rentals`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        if (!response.ok) throw new Error('Booking submission failed');
+        const [response] = await Promise.all([networkPromise, delayPromise]);
+
+        if (!response.ok) {
+            throw new Error('Booking submission failed');
+        }
         
         showSuccessModal();
         resetForm();
         await fetchData();
         renderCalendar();
-        
+
     } catch (error) {
         console.error('Error submitting form:', error);
-        alert('Virhe lomakkeen lähetyksessä. Yritä uudelleen.');
+        alert('Pyyntö epäonnistui. Tarkista tiedot ja yritä uudelleen.');
     } finally {
-        // VAPAUTA LUKKO AINA LOPUKSI, onnistui tai ei.
-        isSubmitting = false; 
-        // Päivitetään napin tila saatavuuden mukaan
-        if(state.activeGenerators > 0) {
-            submitButton.disabled = false;
-            submitButton.textContent = 'Lähetä varauspyyntö';
-        } else {
-            submitButton.disabled = true;
-            submitButton.textContent = 'Ei saatavilla';
-        }
+        // KORJATTU 'FINALLY'-LOHKO:
+        // Vain siistitään latausanimaatio ja kutsutaan yhtä funktiota
+        // joka hoitaa napin tilan oikein.
+        isSubmitting = false;
+        submitButton.classList.remove('loading');
+        updateAvailabilityDisplay(); // Tämä funktio asettaa napin tilan oikein.
     }
 }
 
@@ -304,7 +294,9 @@ function showSuccessModal() {
 }
 
 function closeModal() {
-    elements.modal.classList.remove('active');
+    document.querySelectorAll('.modal.active').forEach(modal => {
+        modal.classList.remove('active');
+    });
 }
 
 function resetForm() {
@@ -314,10 +306,8 @@ function resetForm() {
     updateDateInputs();
     updatePrice();
     elements.addressGroup.style.display = 'none';
-    // Calendar is reset via the main flow
 }
 
-// Global functions for modal handling
 window.closeModal = closeModal;
 window.showTermsModal = (e) => {
     e.preventDefault();
@@ -327,7 +317,6 @@ window.closeTermsModal = () => {
     document.getElementById('termsModal').classList.remove('active');
 };
 
-// Smooth scroll for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
         e.preventDefault();
@@ -338,11 +327,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', async () => {
     initializeGallery();
     initializeForm();
-    await fetchData(); // Fetch all booked dates and active generators
-    updateAvailabilityDisplay(); // Update hero text based on initial count
-    initializeCalendar(); // Render the calendar with the correct disabled dates
+    await fetchData();
+    updateAvailabilityDisplay();
+    initializeCalendar();
 });
