@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: A4;
+    margin: 2.5cm 2cm 2cm 2cm;
+  }
+
+  body {
+    font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #1a1a1a;
+  }
+
+  h1 {
+    font-size: 28pt;
+    color: #1b7a8c;
+    margin-bottom: 0;
+    letter-spacing: -0.5px;
+  }
+
+  h2 {
+    font-size: 16pt;
+    color: #1b7a8c;
+    border-bottom: 2px solid #1b7a8c;
+    padding-bottom: 4px;
+    margin-top: 30px;
+  }
+
+  h3 {
+    font-size: 12pt;
+    color: #145c6a;
+    margin-top: 20px;
+    margin-bottom: 8px;
+  }
+
+  .cover {
+    text-align: center;
+    padding-top: 80px;
+    page-break-after: always;
+  }
+
+  .cover .logo-img {
+    width: 160px;
+    height: auto;
+    margin-bottom: 20px;
+  }
+
+  .cover h1 {
+    font-size: 36pt;
+    margin-bottom: 10px;
+  }
+
+  .cover .subtitle {
+    font-size: 16pt;
+    color: #555;
+    margin-bottom: 60px;
+  }
+
+  .cover .meta {
+    font-size: 11pt;
+    color: #6b7280;
+    margin-top: 80px;
+    line-height: 2;
+  }
+
+  .cover .logo-text {
+    font-size: 48pt;
+    font-weight: 800;
+    color: #1b7a8c;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 10pt;
+  }
+
+  th {
+    background-color: #1b7a8c;
+    color: white;
+    text-align: left;
+    padding: 8px 12px;
+  }
+
+  td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f0f7f8;
+  }
+
+  .highlight-box {
+    background: #e6f3f5;
+    border-left: 4px solid #1b7a8c;
+    padding: 12px 16px;
+    margin: 15px 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .warn-box {
+    background: #fef9e7;
+    border-left: 4px solid #e8a838;
+    padding: 12px 16px;
+    margin: 15px 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .success-box {
+    background: #e8f5e9;
+    border-left: 4px solid #43a047;
+    padding: 12px 16px;
+    margin: 15px 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  ul { margin: 8px 0; }
+  li { margin-bottom: 4px; }
+
+  .phase {
+    background: #f0f7f8;
+    border: 1px solid #c5dfe3;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 12px 0;
+  }
+
+  .phase-title {
+    font-weight: 700;
+    color: #1b7a8c;
+    font-size: 12pt;
+    margin-bottom: 6px;
+  }
+
+  .tech-badge {
+    display: inline-block;
+    background: #1b7a8c;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 9pt;
+    margin: 2px 3px;
+  }
+
+  .section-intro {
+    color: #444;
+    font-style: italic;
+    margin-bottom: 15px;
+  }
+
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<!-- KANSILEHTI -->
+<div class="cover">
+  <img src="logo.png" class="logo-img" alt="JobFuture Logo">
+  <div class="logo-text">JOBFUTURE</div>
+  <h1>Tukkukaupan verkkokauppa</h1>
+  <div class="subtitle">Projektiehdotus ja tekninen määrittely</div>
+  <div class="meta">
+    Laadittu: Helmikuu 2026<br>
+    Versio: 2.0<br>
+    Luokitus: Luottamuksellinen
+  </div>
+</div>
+
+<!-- SISÄLLYSLUETTELO -->
+<h2>Sisällysluettelo</h2>
+<ol>
+  <li>Yhteenveto</li>
+  <li>Projektin laajuus ja tavoitteet</li>
+  <li>Sivuston rakenne ja ominaisuudet</li>
+  <li>Tuotetietojen hankinta (tiedonkeruu)</li>
+  <li>Teknologiavalinta</li>
+  <li>Ulkoasu ja käyttökokemus</li>
+  <li>PDF-tilauslomakkeen luonti ja työnkulku</li>
+  <li>Projektin vaiheet ja aikataulu</li>
+  <li>Palvelinympäristö ja käyttöönotto</li>
+  <li>Riskit ja huomioitavaa</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- 1. YHTEENVETO -->
+<h2>1. Yhteenveto</h2>
+<p>
+  JobFuture Oy tarvitsee modernin, suomenkielisen tukkukaupan verkkokaupan LVI- ja kylmätuotteille. Sivusto toimii <strong>B2B-tuotekatalogina ostoskoritoiminnallisuudella</strong>, jossa kassatoiminto tuottaa PDF-tilauslomakkeen verkkomaksamisen sijaan. Asiakkaat lähettävät tilauksensa sähköpostitse luodun PDF:n avulla osoitteeseen <strong>info@jobfuture.fi</strong>.
+</p>
+<p>
+  Tuotetiedot haetaan kahdelta tavarantoimittajan verkkosivustolta — <strong>Ahlsell</strong> (INNOVA-tuotteet) ja <strong>Onninen</strong> (kylmätuotekategoriat) — molempien toimittajien luvalla. Tiedot järjestetään asianmukaisiin alakategorioihin ja valmistajakohtaisiin ryhmiin JobFuturen omassa katalogissa.
+</p>
+
+<div class="highlight-box">
+  <strong>Keskeinen arvolupaus:</strong> Ammattimainen ja helppokäyttöinen digitaalinen katalogi, joka korvaa manuaaliset hinnastot ja puhelintilaukset. Ratkaisu tehostaa B2B-tilausprosessia säilyttäen samalla henkilökohtaisen palvelun sähköpostipohjaisen tilausvahvistuksen kautta.
+</div>
+
+<!-- 2. PROJEKTIN LAAJUUS -->
+<h2>2. Projektin laajuus ja tavoitteet</h2>
+
+<h3>Sisältyy projektiin</h3>
+<ul>
+  <li>Suomenkielinen responsiivinen verkkosivusto (työpöytä + mobiili)</li>
+  <li>Tuotekatalogi kategorioilla, alakategorioilla ja valmistajasuodatuksella</li>
+  <li>Tuotehaku automaattitäydennyksellä</li>
+  <li>Ostoskori määränhallinnalla</li>
+  <li>PDF-tilauslomakkeen luonti kassalla (ei verkkomaksamista)</li>
+  <li>Tuotetietojen tuonti Ahlsellista (INNOVA) ja Onnisesta (6 kategoriaa) — toimittajien luvalla</li>
+  <li>Hallintapaneeli tuotteiden hallintaan, hinnoitteluun ja katalogin päivitykseen</li>
+  <li>Yhteystiedot ja yrityssivut</li>
+</ul>
+
+<h3>Ei sisälly 1. vaiheeseen</h3>
+<ul>
+  <li>Verkkomaksaminen</li>
+  <li>Käyttäjärekisteröinti / asiakastilit</li>
+  <li>Automaattinen tilaustenkäsittely / ERP-integraatio</li>
+  <li>Monikielisyys (vain suomi tässä vaiheessa)</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- 3. SIVUSTON RAKENNE -->
+<h2>3. Sivuston rakenne ja ominaisuudet</h2>
+
+<h3>3.1 Sivukartta</h3>
+<table>
+  <tr><th>Sivu</th><th>Kuvaus</th></tr>
+  <tr><td><strong>Etusivu</strong></td><td>Hero-banneri, suositellut tuotteet, kategoriakatsaus, pikahaku</td></tr>
+  <tr><td><strong>Tuotteet</strong></td><td>Koko katalogi sivupalkin suodattimilla (kategoria, valmistaja, hintahaarukka)</td></tr>
+  <tr><td><strong>Tuotesivu</strong></td><td>Tuotekuvat, kuvaus, tekniset tiedot, hinta, lisää ostoskoriin</td></tr>
+  <tr><td><strong>Ostoskori</strong></td><td>Ostoskorin yhteenveto, määrien muokkaus, loppusumma, siirry tilaukseen</td></tr>
+  <tr><td><strong>Tilaus</strong></td><td>Asiakastietojen lomake, tilauksen yhteenveto, PDF:n luonti ja lataus</td></tr>
+  <tr><td><strong>Tietoa meistä</strong></td><td>Yritystiedot, tiimi, arvot</td></tr>
+  <tr><td><strong>Yhteystiedot</strong></td><td>Yhteydenottolomake, osoite, kartta, sähköposti, puhelin</td></tr>
+  <tr><td><strong>Hallintapaneeli</strong></td><td>Tuotteiden CRUD, kategorianhallinta, hinnoittelu, tiedonkeruun käynnistys</td></tr>
+</table>
+
+<h3>3.2 Keskeiset ominaisuudet</h3>
+
+<p><strong>Tuotekatalogi</strong></p>
+<ul>
+  <li>Ruudukko-/listanäkymän vaihto</li>
+  <li>Kategoriapuunavigaatio (sivupalkki)</li>
+  <li>Suodatus: valmistaja, hintahaarukka, alakategoria</li>
+  <li>Lajittelu: nimi, hinta (nouseva/laskeva), uusimmat</li>
+  <li>Sivutus säädettävällä tuotemäärällä per sivu</li>
+  <li>Pikalisa ostoskoriin katalogista</li>
+</ul>
+
+<p><strong>Haku</strong></p>
+<ul>
+  <li>Kokotekstihaku tuotenimien, kuvausten ja tuotekoodien joukosta</li>
+  <li>Automaattitäydennys kirjoitettaessa</li>
+  <li>Hakutulosten korostus</li>
+</ul>
+
+<p><strong>Ostoskori</strong></p>
+<ul>
+  <li>Pysyvä ostoskori (tallennetaan selaimen localStorageen + synkronoitu palvelimelle)</li>
+  <li>Määrien säätö +/- -painikkeilla</li>
+  <li>Jatkuva välisumma- ja kokonaissummalaskenta</li>
+  <li>Yksittäisten tuotteiden poisto tai korin tyhjennys</li>
+  <li>Ostoskorikuvake tuotemäärällä yläpalkissa (aina näkyvissä)</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- 4. TUOTETIETOJEN HANKINTA -->
+<h2>4. Tuotetietojen hankinta (tiedonkeruu)</h2>
+<p class="section-intro">Tuotteet haetaan kahdelta tavarantoimittajan verkkosivustolta ja järjestetään JobFuturen omaan kategoriarakenteeseen. Lupa tiedonkeruuseen on saatu sekä Ahlsellilta että Onniselta.</p>
+
+<h3>4.1 Lähde: Ahlsell — INNOVA-tuotteet</h3>
+<table>
+  <tr><th>Tieto</th><th>Arvo</th></tr>
+  <tr><td>URL</td><td>ahlsell.fi/search?parameters.SearchPhrase=Innova</td></tr>
+  <tr><td>Laajuus</td><td>Kaikki "Innova"-merkkiä vastaavat tuotteet</td></tr>
+  <tr><td>Kirjautuminen</td><td>Kyllä — käyttäjätunnukset vaaditaan</td></tr>
+  <tr><td>Lupa</td><td>Myönnetty Ahlsellin toimesta</td></tr>
+  <tr><td>Sivutus</td><td>Kaikki tulossivut käydään läpi</td></tr>
+  <tr><td>Kerättävät tiedot</td><td>Tuotenimi, tuotekoodi, kuvaus, hinta, kuvat, tekniset tiedot, valmistaja</td></tr>
+</table>
+
+<h3>4.2 Lähde: Onninen — Kylmätuotekategoriat</h3>
+<table>
+  <tr><th>Kategoria</th><th>URL-polku</th></tr>
+  <tr><td>Venttiilit</td><td>/kylma/venttiilit/c/777</td></tr>
+  <tr><td>Kylmän asennustarvikkeet</td><td>/kylma/kylman-asennustarvikkeet/c/787</td></tr>
+  <tr><td>Kylmäaineet ja lämmönsiirtonesteet</td><td>/kylma/kylmaaineet-ja-lammonsiirtonesteet/c/797</td></tr>
+  <tr><td>Ohjaus ja valvonta</td><td>/kylma/ohjaus-ja-valvonta/c/803</td></tr>
+  <tr><td>Asennuskanava</td><td>/search?term=asennuskanava</td></tr>
+  <tr><td>Suojakouru</td><td>/search?term=suojakouru</td></tr>
+</table>
+
+<div class="success-box">
+  <strong>Lupa tiedonkeruuseen:</strong> Sekä Ahlsell että Onninen ovat myöntäneet luvan automaattiseen tuotetietojen keruuseen. Tiedonkeruu suoritetaan kirjautuneilla istunnoilla ja kohtuullista kyselynopeutta noudattaen.
+</div>
+
+<h3>4.3 Tietomalli</h3>
+<p>Jokainen kerätty tuote tallennetaan seuraavalla rakenteella:</p>
+<table>
+  <tr><th>Kenttä</th><th>Tyyppi</th><th>Kuvaus</th></tr>
+  <tr><td>id</td><td>UUID</td><td>Sisäinen yksilöivä tunniste</td></tr>
+  <tr><td>name</td><td>String</td><td>Tuotenimi (suomeksi)</td></tr>
+  <tr><td>sku</td><td>String</td><td>Tuotekoodi / SKU toimittajalta</td></tr>
+  <tr><td>description</td><td>Text</td><td>Tuotekuvaus</td></tr>
+  <tr><td>price</td><td>Decimal</td><td>Yksikköhinta (EUR, alv 0 %)</td></tr>
+  <tr><td>images</td><td>Array</td><td>Tuotekuvien URL-osoitteet (ladattu paikallisesti)</td></tr>
+  <tr><td>manufacturer</td><td>String</td><td>Merkki / valmistajan nimi</td></tr>
+  <tr><td>category</td><td>FK</td><td>Linkki kategoriaan</td></tr>
+  <tr><td>subcategory</td><td>FK</td><td>Linkki alakategoriaan</td></tr>
+  <tr><td>source</td><td>Enum</td><td>ahlsell | onninen</td></tr>
+  <tr><td>source_url</td><td>String</td><td>Alkuperäisen tuotesivun URL</td></tr>
+  <tr><td>specifications</td><td>JSON</td><td>Tekniset tiedot (avain-arvo-parit)</td></tr>
+  <tr><td>last_scraped</td><td>DateTime</td><td>Viimeisin päivitysajankohta lähteestä</td></tr>
+</table>
+
+<h3>4.4 Kategoriarakenne</h3>
+<p>Tuotteet järjestetään kaksitasoiseen hierarkiaan:</p>
+<ul>
+  <li><strong>INNOVA-tuotteet</strong> (Ahlsellista) — alajako tuotetyypin / valmistajan alakategorian mukaan</li>
+  <li><strong>Venttiilit</strong> — Venttiilit ja venttiilitarvikkeet</li>
+  <li><strong>Asennustarvikkeet</strong> — Kylmäasennustarvikkeet</li>
+  <li><strong>Kylmäaineet</strong> — Kylmäaineet ja lämmönsiirtonesteet</li>
+  <li><strong>Ohjaus ja valvonta</strong> — Ohjaus, valvonta ja automaatio</li>
+  <li><strong>Asennuskanavat</strong> — Asennuskanavat ja kaapelihyllyt</li>
+  <li><strong>Suojakourut</strong> — Suojakourut ja suojukset</li>
+</ul>
+<p>Lisäkategorioita ja alakategorioita voidaan luoda hallintapaneelin kautta tarpeen mukaan.</p>
+
+<div class="page-break"></div>
+
+<!-- 5. TEKNOLOGIAVALINTA -->
+<h2>5. Teknologiavalinta</h2>
+<p class="section-intro">Suositeltu teknologiapino, joka on optimoitu katalogi-/tukkukauppasivustolle ja PDF-luontitarpeisiin.</p>
+
+<h3>5.1 Käyttöliittymä (Frontend)</h3>
+<p>
+  <span class="tech-badge">Next.js 15</span>
+  <span class="tech-badge">React 19</span>
+  <span class="tech-badge">TypeScript</span>
+  <span class="tech-badge">Tailwind CSS</span>
+</p>
+<ul>
+  <li><strong>Next.js</strong> — Full-stack React-kehys palvelinpuolen renderöinnillä nopeisiin sivulatauksiin ja hakukoneoptimointiin</li>
+  <li><strong>Tailwind CSS</strong> — Utility-first CSS nopeaan ja yhtenäiseen käyttöliittymäkehitykseen</li>
+  <li><strong>TypeScript</strong> — Tyyppitarkistus koko koodikannan laajuudelta</li>
+</ul>
+
+<h3>5.2 Palvelinpuoli ja API</h3>
+<p>
+  <span class="tech-badge">Next.js API Routes</span>
+  <span class="tech-badge">Prisma ORM</span>
+  <span class="tech-badge">PostgreSQL</span>
+</p>
+<ul>
+  <li><strong>Next.js API Routes</strong> — Palvelinlogiikka samassa projektissa käyttöliittymän kanssa, mikä yksinkertaistaa käyttöönottoa</li>
+  <li><strong>Prisma</strong> — Tyyppiturvallinen ORM tietokantaoperaatioihin migraatiotuella</li>
+  <li><strong>PostgreSQL</strong> — Luotettava relaatiotietokanta rakenteelliselle tuotetiedolle</li>
+</ul>
+
+<h3>5.3 Tiedonkeruu</h3>
+<p>
+  <span class="tech-badge">Python</span>
+  <span class="tech-badge">Playwright</span>
+  <span class="tech-badge">BeautifulSoup</span>
+</p>
+<ul>
+  <li><strong>Python + Playwright</strong> — Selainautomaatio kirjautuneille tiedonkeruuistunnoille</li>
+  <li><strong>BeautifulSoup</strong> — HTML-jäsennys ja tietojen poiminta</li>
+  <li>Tiedonkeruuskriptit ajetaan itsenäisesti; tulokset tuodaan PostgreSQL-tietokantaan</li>
+</ul>
+
+<h3>5.4 PDF-luonti</h3>
+<p>
+  <span class="tech-badge">React-PDF</span> tai <span class="tech-badge">Puppeteer</span>
+</p>
+<ul>
+  <li>Palvelinpuolen PDF-luonti tilausdatasta</li>
+  <li>Brändätty pohja JobFuturen logolla, asiakastiedoilla, tuotetaulukolla ja loppusummilla</li>
+</ul>
+
+<h3>5.5 Palvelinympäristö ja infrastruktuuri</h3>
+<p>
+  <span class="tech-badge">Render</span>
+  <span class="tech-badge">PostgreSQL</span>
+</p>
+<ul>
+  <li><strong>Render:</strong> Kaikki yhdellä alustalla — Next.js-hostaus ja hallittu PostgreSQL. Yksinkertainen, kustannustehokas ja kaikki yhdessä hallintapaneelissa.</li>
+  <li>Automaattinen käyttöönotto Gitistä, sisäänrakennettu SSL ja EU-alueen tuki</li>
+</ul>
+
+<div class="highlight-box">
+  <strong>Alusta:</strong> <strong>Render</strong> — yksi alusta verkkosovellukselle, tietokannalle ja staattisille tiedostoille. Minimoi kustannukset ja operatiivisen monimutkaisuuden.
+</div>
+
+<div class="page-break"></div>
+
+<!-- 6. ULKOASU JA KÄYTTÖKOKEMUS -->
+<h2>6. Ulkoasu ja käyttökokemus</h2>
+
+<h3>6.1 Suunnitteluperiaatteet</h3>
+<ul>
+  <li><strong>Ammattimainen ja selkeä:</strong> B2B-estetiikka — ei sekavuutta, selkeä tietohierarkia</li>
+  <li><strong>Nopea ja toimiva:</strong> Tukkukaupan ostajat arvostavat tehokkuutta, eivät näyttäviä animaatioita</li>
+  <li><strong>Mobiiliresponsiivinen:</strong> Asentajat saattavat selata sivustoa työmailla puhelimilla/tableteilla</li>
+  <li><strong>Saavutettava:</strong> WCAG 2.1 AA -tason noudattaminen tavoitteena</li>
+</ul>
+
+<h3>6.2 Väripaletti (JobFuturen brändi-identiteetin mukaan)</h3>
+<table>
+  <tr><th>Rooli</th><th>Väri</th><th>Käyttö</th></tr>
+  <tr><td>Pääväri</td><td style="color:#1b7a8c"><strong>#1b7a8c</strong> (Brändin teal)</td><td>Otsikot, painikkeet, navigaatio, linkit</td></tr>
+  <tr><td>Pääväri tumma</td><td style="color:#145c6a"><strong>#145c6a</strong> (Tumma teal)</td><td>Hover-tilat, aktiiviset elementit</td></tr>
+  <tr><td>Toissijainen</td><td style="color:#0f1a1e"><strong>#0f1a1e</strong> (Lähes musta)</td><td>Footer, tummat osiot, kontrastipinnat</td></tr>
+  <tr><td>Korostusväri</td><td style="color:#e8a838"><strong>#e8a838</strong> (Lämmin kulta)</td><td>Toimintopainikkeet, ostoskorikuvake, huomiot</td></tr>
+  <tr><td>Tausta</td><td><strong>#f4f6f7</strong> (Viileä harmaa)</td><td>Sivun tausta</td></tr>
+  <tr><td>Pinta</td><td><strong>#ffffff</strong> (Valkoinen)</td><td>Kortit, sisältöalueet, modaalit</td></tr>
+  <tr><td>Teksti</td><td><strong>#1a1a1a</strong> (Lähes musta)</td><td>Leipäteksti</td></tr>
+  <tr><td>Himmeä</td><td style="color:#6b7280"><strong>#6b7280</strong> (Keskiharmaa)</td><td>Toissijainen teksti, reunat, kuvatekstit</td></tr>
+</table>
+<p>Logo: <strong>#1b7a8c</strong> teal mustalla/valkoisella taustalla olemassa olevien brändimateriaalien mukaisesti. Lämmin kultainen korostusväri luo hyvän kontrastin tealiin toimintopainikkeissa (lisää ostoskoriin, siirry kassalle) ilman ristiriitaa.</p>
+
+<h3>6.3 Keskeiset käyttöliittymäkomponentit</h3>
+<ul>
+  <li><strong>Kiinteä yläpalkki:</strong> Logo, hakupalkki, kategoriavalikko, ostoskorikuvake tuotemäärällä</li>
+  <li><strong>Sivupalkin suodattimet:</strong> Avattava kategoriapuu, valmistajavalintaruudut, hintahaarukan liukusäädin</li>
+  <li><strong>Tuotekortit:</strong> Kuva, nimi, tuotekoodi, hinta, pikalisa-painike</li>
+  <li><strong>Ostoskorilaatikko:</strong> Sivulta esiin liukuva ostoskoripaneeli nopeaan tarkasteluun ilman sivunvaihtoa</li>
+  <li><strong>Tilauslomake:</strong> Selkeä lomake yrityksen nimellä, yhteyshenkilöllä, sähköpostilla, puhelinnumerolla, toimitusosoitteella ja huomautuksilla</li>
+</ul>
+
+<h3>6.4 Responsiiviset leikkausarvot</h3>
+<table>
+  <tr><th>Leikkausarvo</th><th>Asettelu</th></tr>
+  <tr><td>Työpöytä (1024px+)</td><td>Sivupalkki + 3–4 sarakkeen tuoteruudukko</td></tr>
+  <tr><td>Tabletti (768–1023px)</td><td>Avattava sivupalkki + 2 sarakkeen ruudukko</td></tr>
+  <tr><td>Mobiili (&lt;768px)</td><td>Koko levyiset kortit, alalaidan suodatinpaneeli, hampurilaisvalikko</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 7. PDF-TILAUSLOMAKE -->
+<h2>7. PDF-tilauslomakkeen luonti ja työnkulku</h2>
+
+<h3>7.1 Tilauksen kulku</h3>
+<ol>
+  <li>Asiakas selaa katalogia ja lisää tuotteita ostoskoriin</li>
+  <li>Asiakas klikkaa <strong>"Tee tilaus"</strong></li>
+  <li>Asiakas täyttää yrityksen ja yhteyshenkilön tiedot tilauslomakkeelle</li>
+  <li>Järjestelmä luo brändätyn PDF:n, joka sisältää:
+    <ul>
+      <li>JobFuturen logo ja yritystiedot</li>
+      <li>Asiakkaan/yrityksen tiedot</li>
+      <li>Tilauspäivämäärä ja yksilöllinen viitenumero</li>
+      <li>Tuotetaulukko: tuotekoodi, nimi, määrä, yksikköhinta, rivihinta</li>
+      <li>Välisumma, ALV (25,5 %) ja loppusumma</li>
+      <li>Huomautuskenttä</li>
+    </ul>
+  </li>
+  <li>PDF ladataan asiakkaan laitteelle</li>
+  <li>Asiakkaalle näytetään ohje: <em>"Lähetä tilaus sähköpostilla osoitteeseen info@jobfuture.fi"</em></li>
+  <li><strong>Valinnainen lisäominaisuus:</strong> "Lähetä tilaus" -painike, joka avaa valmiiksi täytetyn sähköpostiluonnoksen PDF-liitteellä</li>
+</ol>
+
+<h3>7.2 PDF-pohjan rakenne</h3>
+<table>
+  <tr><th>Osio</th><th>Sisältö</th></tr>
+  <tr><td>Yläosa</td><td>JobFuturen logo, yrityksen nimi, osoite, Y-tunnus</td></tr>
+  <tr><td>Asiakastiedot</td><td>Yrityksen nimi, yhteyshenkilö, sähköposti, puhelin, toimitusosoite</td></tr>
+  <tr><td>Tilauksen metatiedot</td><td>Tilauksen viitenumero, päivämäärä, maksuehdot</td></tr>
+  <tr><td>Tuotetaulukko</td><td>Sarakkeet: #, tuotekoodi, tuotenimi, määrä, yksikköhinta, summa</td></tr>
+  <tr><td>Yhteenveto</td><td>Välisumma (alv 0 %), ALV 25,5 %, loppusumma</td></tr>
+  <tr><td>Alaosa</td><td>Huomautukset, "Lähetä osoitteeseen info@jobfuture.fi", yrityksen alatunniste</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 8. PROJEKTIN VAIHEET -->
+<h2>8. Projektin vaiheet ja aikataulu</h2>
+
+<div class="phase">
+  <div class="phase-title">Vaihe 1 — Perusta ja tiedonkeruu (Viikot 1–2)</div>
+  <ul>
+    <li>Projektin repositorion perustaminen, Next.js-runko, tietokantaskeema</li>
+    <li>Python-tiedonkeruuskriptien rakentaminen Ahlsellille (INNOVA) ja Onniselle</li>
+    <li>Kirjautuneiden istuntojen, sivutuksen ja tietojen poiminnan käsittely</li>
+    <li>Kerättyjen tuotteiden tuonti PostgreSQL-tietokantaan oikeilla kategorioilla</li>
+    <li>Tuotekuvien tallennuksen perustaminen</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-title">Vaihe 2 — Katalogi ja käyttöliittymä (Viikot 3–4)</div>
+  <ul>
+    <li>Tuotelistaussivujen rakentaminen kategorianavigaatiolla</li>
+    <li>Tuotesivujen toteutus</li>
+    <li>Hakutoiminnallisuuden rakentaminen automaattitäydennyksellä</li>
+    <li>Suodattimien toteutus (kategoria, valmistaja, hintahaarukka)</li>
+    <li>Responsiivinen suunnittelu kaikille näyttöko'oille</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-title">Vaihe 3 — Ostoskori ja PDF-kassa (Viikot 5–6)</div>
+  <ul>
+    <li>Ostoskorin rakentaminen lisäys-/poisto-/määränhallinnalla</li>
+    <li>Tilauslomakkeen luonti validoinnilla</li>
+    <li>PDF-luonnin toteutus brändätyllä pohjalla</li>
+    <li>"Lataa PDF" ja valinnaisen "lähetä tilaus" -toiminnon rakentaminen</li>
+    <li>Ostoskorin pysyvyys (localStorage + istunto)</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-title">Vaihe 4 — Hallintapaneeli ja viimeistely (Viikot 7–8)</div>
+  <ul>
+    <li>Hallintapaneelin autentikointi (yksinkertainen ja turvallinen kirjautuminen)</li>
+    <li>Tuotteiden hallinta (lisäys, muokkaus, poisto, massatuonti)</li>
+    <li>Kategorianhallintaliittymä</li>
+    <li>Uudelleenkeruun käynnistys erojen tunnistuksella (uudet/päivitetyt/poistetut tuotteet)</li>
+    <li>Hinnoittelun ylikirjoitus (mahdollisuus asettaa omat JobFuture-hinnat)</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-title">Vaihe 5 — Testaus ja julkaisu (Viikot 9–10)</div>
+  <ul>
+    <li>Selain- ja laitetestaus</li>
+    <li>Suorituskyvyn optimointi (kuvien laiska lataus, välimuisti)</li>
+    <li>Hakukoneoptimoinnin asetukset (metatiedot, sivukartta, rakenteellinen data)</li>
+    <li>Verkkotunnuksen asetukset ja DNS-konfiguraatio</li>
+    <li>Käyttöönotto tuotantoympäristössä</li>
+    <li>Luovutusdokumentaatio ja hallintapaneelin koulutus</li>
+  </ul>
+</div>
+
+<div class="highlight-box">
+  <strong>Arvioitu kokonaisaikataulu:</strong> 8–10 viikkoa projektin aloituksesta julkaisuun. Aikataulu on joustava ja sitä voidaan mukauttaa palautekierrosten ja laajuuden tarkennusten perusteella.
+</div>
+
+<div class="page-break"></div>
+
+<!-- 9. PALVELINYMPÄRISTÖ -->
+<h2>9. Palvelinympäristö ja käyttöönotto</h2>
+
+<h3>9.1 Alusta: Render</h3>
+<p>Kaikki palvelut hostataan <strong>Renderillä</strong> — yksi alusta verkkosovellukselle, tietokannalle ja staattisille tiedostoille. Tämä pitää toiminnot yksinkertaisina, kustannukset alhaisina ja kaiken yhdessä paikassa.</p>
+
+<table>
+  <tr><th>Komponentti</th><th>Render-palvelu</th><th>Arvioitu kuukausikustannus</th></tr>
+  <tr><td>Verkkosovellus</td><td>Render Web Service (Starter)</td><td>~7 $/kk</td></tr>
+  <tr><td>Tietokanta</td><td>Render PostgreSQL (Starter)</td><td>~7 $/kk</td></tr>
+  <tr><td>Kuvavarasto</td><td>Render Disk (sisältyy web-palveluun)</td><td>0 $</td></tr>
+  <tr><td>Verkkotunnus</td><td>jobfuture.fi (olemassa oleva)</td><td>~15 $/vuosi</td></tr>
+  <tr><td><strong>Yhteensä</strong></td><td></td><td><strong>~15 $/kk</strong></td></tr>
+</table>
+
+<div class="highlight-box">
+  <strong>Kustannustehokas:</strong> Keskittämällä kaikki Renderille kuukausikustannukset pysyvät alle 20 $/kk — merkittävästi edullisempi kuin usean palvelun vaihtoehdot. Paketteja voidaan skaalata liikenteen kasvaessa.
+</div>
+
+<!-- 10. RISKIT -->
+<h2>10. Riskit ja huomioitavaa</h2>
+
+<table>
+  <tr><th>Riski</th><th>Vaikutus</th><th>Lieventäminen</th></tr>
+  <tr>
+    <td><strong>Tiedonkeruun haavoittuvuus</strong></td>
+    <td>Lähdessivustojen HTML-rakenne voi muuttua, mikä rikkoo keruuskriptit</td>
+    <td>Modulaarinen keruuarkkitehtuuri virhehälytyksillä; säännöllinen manuaalinen tarkistus; hallintapaneelin uudelleenkeruutoiminto</td>
+  </tr>
+  <tr>
+    <td><strong>IP-esto</strong></td>
+    <td>Toimittajien sivustot saattavat estää tiedonkeruupyynnöt</td>
+    <td>Kohtuullinen kyselynopeus; vaihtuvat käyttäjäagentit; ajaminen VPS-IP:ltä; keruun suorittaminen vain hiljaisina aikoina</td>
+  </tr>
+  <tr>
+    <td><strong>Hintojen ajantasaisuus</strong></td>
+    <td>Kerätyt hinnat voivat vanhentua</td>
+    <td>Ajoitettu uudelleenkeruu (viikoittain tai päivittäin); "hinnat vahvistettava"-vastuuvapautus sivustolla; hallintapaneelin hinnanohitusmahdollisuus</td>
+  </tr>
+  <tr>
+    <td><strong>Autentikaatiomuutokset</strong></td>
+    <td>Lähdesivustojen kirjautumistapa voi muuttua (2FA, captcha)</td>
+    <td>Kirjautumisen onnistumisen seuranta; varajärjestelmänä manuaalinen CSV-tuonti; hallintapaneelin ilmoitus keruun epäonnistumisesta</td>
+  </tr>
+</table>
+
+<div class="success-box">
+  <strong>Tiedonkeruulupa:</strong> Sekä Ahlsell että Onninen ovat myöntäneet luvan automaattiseen tuotetietojen keruuseen, mikä eliminoi keskeisimmän juridisen riskin. Säännöllinen yhteydenpito molempiin toimittajiin on suositeltavaa luvan ylläpitämiseksi ja mahdollisen suoran datarajapinnan tai API-yhteyden selvittämiseksi pitkän aikavälin kehityksenä.
+</div>
+
+<div class="page-break"></div>
+
+<h2>Seuraavat askeleet</h2>
+<ol>
+  <li><strong>Tarkista ja hyväksy</strong> tämä ehdotus</li>
+  <li><strong>Toimita</strong> kirjautumistiedot Ahlselliin ja Onniseen (turvallisesti)</li>
+  <li><strong>Vahvista</strong> Render-tilin asetukset ja käyttöönottokonfiguraatio</li>
+  <li><strong>Käynnistä</strong> Vaihe 1 — Perusta ja tiedonkeruu</li>
+</ol>
+
+<div class="highlight-box" style="margin-top: 30px;">
+  <strong>Yhteystiedot:</strong><br>
+  Lisätietoja tästä ehdotuksesta saat ottamalla yhteyttä.<br>
+  Rakennamme mielellämme JobFuturen digitaalisen katalogin.
+</div>
+
+</body>
+</html>

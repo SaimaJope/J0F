@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductSource {
+  AHLSELL
+  ONNINEN
+}
+
+enum OrderStatus {
+  DRAFT
+  PDF_GENERATED
+  SUBMITTED_EMAIL
+  CANCELLED
+}
+
+model Category {
+  id          String     @id @default(uuid())
+  name        String
+  slug        String     @unique
+  description String?
+  sortOrder   Int        @default(0)
+  parentId    String?
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryTree")
+  products    Product[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Manufacturer {
+  id        String    @id @default(uuid())
+  name      String
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id             String        @id @default(uuid())
+  name           String
+  sku            String        @unique
+  description    String?
+  sourcePriceExVat Decimal     @db.Decimal(10, 2)
+  markupPercent  Decimal       @default(25.00) @db.Decimal(5, 2)
+  priceExVat     Decimal       @db.Decimal(10, 2)
+  vatRate        Decimal       @default(25.5) @db.Decimal(4, 2)
+  source         ProductSource
+  sourceUrl      String
+  specifications Json?
+  isActive       Boolean       @default(true)
+  lastScrapedAt  DateTime?
+  categoryId     String
+  category       Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  manufacturerId String?
+  manufacturer   Manufacturer? @relation(fields: [manufacturerId], references: [id], onDelete: SetNull)
+  images         ProductImage[]
+  orderItems     OrderItem[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([categoryId])
+  @@index([manufacturerId])
+  @@index([isActive])
+}
+
+model ProductImage {
+  id         String   @id @default(uuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sourceUrl  String
+  localPath  String?
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([productId, sortOrder])
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  orderNumber     String      @unique
+  status          OrderStatus @default(DRAFT)
+  companyName     String
+  contactName     String
+  email           String
+  phone           String?
+  deliveryAddress String?
+  notes           String?
+  subtotalExVat   Decimal     @db.Decimal(12, 2)
+  vatAmount       Decimal     @db.Decimal(12, 2)
+  totalIncVat     Decimal     @db.Decimal(12, 2)
+  pdfPath         String?
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  quantity    Int
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  lineTotal   Decimal  @db.Decimal(12, 2)
+  createdAt   DateTime @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+}

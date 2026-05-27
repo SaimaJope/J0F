@@ -1,0 +1,202 @@
+"use client";
+
+import { useState } from "react";
+
+type Status = "idle" | "sending" | "ok" | "error";
+
+const topics = [
+  { value: "suunnittelu", label: "Sähkösuunnittelu" },
+  { value: "konsultaatio", label: "Sähkökonsultaatio" },
+  { value: "valvonta", label: "Sähkötöiden valvonta" },
+  { value: "tarkastus", label: "Tarkastus tai kuntoarvio" },
+  { value: "omakotitalo", label: "Omakotitalon sähkötyöt" },
+  { value: "muu", label: "Muu" }
+];
+
+const fieldClass =
+  "block w-full border border-rule-muted bg-canvas px-3.5 py-3 text-[15px] text-ink placeholder:text-ink-faint transition-colors focus:border-accent focus:bg-surface focus:outline-none";
+
+const labelClass = "block text-[11px] uppercase tracking-label text-accent-ink";
+
+export function ContactForm() {
+  const [status, setStatus] = useState<Status>("idle");
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus("sending");
+    setError(null);
+
+    const formData = new FormData(event.currentTarget);
+    const payload = {
+      name: String(formData.get("name") ?? "").trim(),
+      email: String(formData.get("email") ?? "").trim(),
+      phone: String(formData.get("phone") ?? "").trim(),
+      topic: String(formData.get("topic") ?? "").trim(),
+      message: String(formData.get("message") ?? "").trim(),
+      callback: formData.get("callback") === "on"
+    };
+
+    if (!payload.name || !payload.message || (!payload.email && !payload.phone)) {
+      setStatus("error");
+      setError("Anna nimi, viesti ja vähintään sähköposti tai puhelin.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error("Lähetys epäonnistui.");
+      setStatus("ok");
+      (event.target as HTMLFormElement).reset();
+    } catch (err) {
+      setStatus("error");
+      setError(err instanceof Error ? err.message : "Tuntematon virhe.");
+    }
+  }
+
+  if (status === "ok") {
+    return (
+      <div className="border border-accent-soft bg-accent-mist p-6 sm:p-8">
+        <p className="text-[11px] uppercase tracking-label text-accent-ink">
+          Vastaanotettu
+        </p>
+        <h3 className="mt-4 font-display text-[32px] leading-tight tracking-display text-ink">
+          Kiitos yhteydenotosta.
+        </h3>
+        <p className="mt-4 max-w-[44ch] text-[15px] leading-[1.6] text-ink-muted">
+          Olemme sinuun yhteydessä mahdollisimman pian, yleensä saman
+          arkipäivän aikana.
+        </p>
+        <button
+          type="button"
+          onClick={() => setStatus("idle")}
+          className="group mt-8 inline-flex items-center gap-3 border-b border-accent-ink py-1 text-[14px] font-semibold text-accent-ink transition hover:gap-4"
+        >
+          Lähetä uusi viesti
+          <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
+            →
+          </span>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2">
+        <Field label="Nimi" required>
+          <input
+            name="name"
+            type="text"
+            required
+            autoComplete="name"
+            placeholder="Etunimi Sukunimi"
+            className={fieldClass}
+          />
+        </Field>
+        <Field label="Aihe">
+          <select name="topic" defaultValue="" className={`${fieldClass} appearance-none`}>
+            <option value="" className="text-ink-faint">
+              Valitse aihe
+            </option>
+            {topics.map((topic) => (
+              <option key={topic.value} value={topic.value}>
+                {topic.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Sähköposti">
+          <input
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="nimi@osoite.fi"
+            className={fieldClass}
+          />
+        </Field>
+        <Field label="Puhelin">
+          <input
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            placeholder="044 000 0000"
+            className={fieldClass}
+          />
+        </Field>
+      </div>
+
+      <Field label="Viesti" required>
+        <textarea
+          name="message"
+          required
+          rows={5}
+          placeholder="Kerro lyhyesti kohteesta ja aikataulusta."
+          className={`${fieldClass} resize-none`}
+        />
+      </Field>
+
+      <label className="flex items-center gap-3 text-[14px] text-ink-muted">
+        <input
+          name="callback"
+          type="checkbox"
+          className="h-4 w-4 border-rule accent-accent focus:ring-0"
+        />
+        Soittakaa minulle takaisin.
+      </label>
+
+      <p className="text-[12px] text-ink-faint">
+        Anna vähintään sähköposti tai puhelin, jotta voimme vastata.
+      </p>
+
+      {status === "error" && error && (
+        <p
+          role="alert"
+          className="border-l-2 border-accent bg-accent-mist px-4 py-3 text-[13px] text-ink"
+        >
+          {error}
+        </p>
+      )}
+
+      <div className="flex flex-col gap-4 border-t border-rule-muted pt-8 sm:flex-row sm:items-center sm:justify-between">
+        <button
+          type="submit"
+          disabled={status === "sending"}
+          className="group inline-flex w-full items-center justify-center gap-3 border border-accent bg-accent px-8 py-4 text-[15px] font-semibold text-white shadow-[0_14px_30px_rgba(23,111,125,0.18)] transition hover:border-accent-ink hover:bg-accent-ink disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+        >
+          {status === "sending" ? "Lähetetään." : "Lähetä viesti"}
+          <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
+            →
+          </span>
+        </button>
+        <span className="text-[12px] text-ink-faint sm:max-w-[24ch] sm:text-right">
+          Vastaamme yleensä saman arkipäivän aikana.
+        </span>
+      </div>
+    </form>
+  );
+}
+
+function Field({
+  label,
+  required,
+  children
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className={labelClass}>
+        {label}
+        {required && <span aria-hidden className="ml-1 text-ink">*</span>}
+      </span>
+      <div className="mt-2">{children}</div>
+    </label>
+  );
+}

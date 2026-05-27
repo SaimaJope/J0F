@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: A4;
+    margin: 2.5cm 2cm 2cm 2cm;
+  }
+
+  body {
+    font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #1a1a1a;
+  }
+
+  h1 {
+    font-size: 28pt;
+    color: #1b7a8c;
+    margin-bottom: 0;
+    letter-spacing: -0.5px;
+  }
+
+  h2 {
+    font-size: 16pt;
+    color: #1b7a8c;
+    border-bottom: 2px solid #1b7a8c;
+    padding-bottom: 4px;
+    margin-top: 30px;
+  }
+
+  h3 {
+    font-size: 12pt;
+    color: #145c6a;
+    margin-top: 20px;
+    margin-bottom: 8px;
+  }
+
+  .cover {
+    text-align: center;
+    padding-top: 80px;
+    page-break-after: always;
+  }
+
+  .cover .logo-img {
+    width: 160px;
+    height: auto;
+    margin-bottom: 20px;
+  }
+
+  .cover h1 {
+    font-size: 36pt;
+    margin-bottom: 10px;
+  }
+
+  .cover .subtitle {
+    font-size: 16pt;
+    color: #555;
+    margin-bottom: 60px;
+  }
+
+  .cover .meta {
+    font-size: 11pt;
+    color: #6b7280;
+    margin-top: 80px;
+    line-height: 2;
+  }
+
+  .cover .logo-text {
+    font-size: 48pt;
+    font-weight: 800;
+    color: #1b7a8c;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 10pt;
+  }
+
+  th {
+    background-color: #1b7a8c;
+    color: white;
+    text-align: left;
+    padding: 8px 12px;
+  }
+
+  td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f0f7f8;
+  }
+
+  .highlight-box {
+    background: #e6f3f5;
+    border-left: 4px solid #1b7a8c;
+    padding: 12px 16px;
+    margin: 15px 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .warn-box {
+    background: #fef9e7;
+    border-left: 4px solid #e8a838;
+    padding: 12px 16px;
+    margin: 15px 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .success-box {
+    background: #e8f5e9;
+    border-left: 4px solid #43a047;
+    padding: 12px 16px;
+    margin: 15px 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  ul { margin: 8px 0; }
+  li { margin-bottom: 4px; }
+
+  .phase {
+    background: #f0f7f8;
+    border: 1px solid #c5dfe3;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 12px 0;
+  }
+
+  .phase-title {
+    font-weight: 700;
+    color: #1b7a8c;
+    font-size: 12pt;
+    margin-bottom: 6px;
+  }
+
+  .tech-badge {
+    display: inline-block;
+    background: #1b7a8c;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 9pt;
+    margin: 2px 3px;
+  }
+
+  .section-intro {
+    color: #444;
+    font-style: italic;
+    margin-bottom: 15px;
+  }
+
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <img src="logo.png" class="logo-img" alt="JobFuture Logo">
+  <div class="logo-text">JOBFUTURE</div>
+  <h1>Wholesale Catalog Website</h1>
+  <div class="subtitle">Project Proposal &amp; Technical Specification</div>
+  <div class="meta">
+    Prepared: February 2026<br>
+    Version: 2.0<br>
+    Classification: Confidential
+  </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<h2>Table of Contents</h2>
+<ol>
+  <li>Executive Summary</li>
+  <li>Project Scope &amp; Objectives</li>
+  <li>Site Architecture &amp; Features</li>
+  <li>Product Data Strategy (Scraping)</li>
+  <li>Technology Stack</li>
+  <li>Design &amp; User Experience</li>
+  <li>PDF Order Generation &amp; Workflow</li>
+  <li>Project Phases &amp; Timeline</li>
+  <li>Hosting &amp; Deployment</li>
+  <li>Risks &amp; Considerations</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- 1. EXECUTIVE SUMMARY -->
+<h2>1. Executive Summary</h2>
+<p>
+  JobFuture Oy requires a modern, Finnish-language wholesale catalog website for HVAC and refrigeration products. The site will function as a <strong>B2B product catalog with cart functionality</strong>, where the checkout process generates a PDF order form rather than processing payments online. Customers submit orders by emailing the generated PDF to <strong>info@jobfuture.fi</strong>.
+</p>
+<p>
+  Product data will be sourced from two supplier websites — <strong>Ahlsell</strong> (INNOVA-branded products) and <strong>Onninen</strong> (refrigeration categories) — with full authorization from both suppliers. Data will be organized into proper subcategories and manufacturer groupings within the JobFuture catalog.
+</p>
+
+<div class="highlight-box">
+  <strong>Key Value Proposition:</strong> A professional, easy-to-use digital catalog that replaces manual price lists and phone orders, streamlining the B2B ordering workflow while keeping the human touch of email-based order confirmation.
+</div>
+
+<!-- 2. PROJECT SCOPE -->
+<h2>2. Project Scope &amp; Objectives</h2>
+
+<h3>In Scope</h3>
+<ul>
+  <li>Finnish-language responsive website (desktop + mobile)</li>
+  <li>Product catalog with categories, subcategories, and manufacturer filtering</li>
+  <li>Product search with autocomplete</li>
+  <li>Shopping cart with quantity management</li>
+  <li>PDF order generation at checkout (no payment processing)</li>
+  <li>Product data import from Ahlsell (INNOVA) and Onninen (6 categories) — with supplier authorization</li>
+  <li>Admin panel for product management, pricing, and catalog updates</li>
+  <li>Contact information and company pages</li>
+</ul>
+
+<h3>Out of Scope (Phase 1)</h3>
+<ul>
+  <li>Online payment processing</li>
+  <li>User registration / customer accounts</li>
+  <li>Automated order processing / ERP integration</li>
+  <li>Multi-language support (Finnish only for now)</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- 3. SITE ARCHITECTURE -->
+<h2>3. Site Architecture &amp; Features</h2>
+
+<h3>3.1 Sitemap</h3>
+<table>
+  <tr><th>Page</th><th>Description</th></tr>
+  <tr><td><strong>Etusivu</strong> (Home)</td><td>Hero banner, featured products, category highlights, quick search</td></tr>
+  <tr><td><strong>Tuotteet</strong> (Products)</td><td>Full catalog with sidebar filters (category, manufacturer, price range)</td></tr>
+  <tr><td><strong>Tuotesivu</strong> (Product Detail)</td><td>Product images, description, specifications, price, add-to-cart</td></tr>
+  <tr><td><strong>Ostoskori</strong> (Cart)</td><td>Cart overview, quantity editing, running total, proceed to order</td></tr>
+  <tr><td><strong>Tilaus</strong> (Order/Checkout)</td><td>Customer details form, order summary, PDF generation &amp; download</td></tr>
+  <tr><td><strong>Tietoa meistä</strong> (About Us)</td><td>Company information, team, values</td></tr>
+  <tr><td><strong>Yhteystiedot</strong> (Contact)</td><td>Contact form, address, map, email, phone</td></tr>
+  <tr><td><strong>Admin Panel</strong></td><td>Product CRUD, category management, pricing, scrape triggers</td></tr>
+</table>
+
+<h3>3.2 Core Features</h3>
+
+<p><strong>Product Catalog</strong></p>
+<ul>
+  <li>Grid/list view toggle</li>
+  <li>Category tree navigation (sidebar)</li>
+  <li>Filter by: manufacturer, price range, subcategory</li>
+  <li>Sort by: name, price (asc/desc), newest</li>
+  <li>Pagination with configurable items per page</li>
+  <li>Quick-add to cart from catalog view</li>
+</ul>
+
+<p><strong>Search</strong></p>
+<ul>
+  <li>Full-text search across product names, descriptions, and SKUs</li>
+  <li>Autocomplete suggestions as user types</li>
+  <li>Search result highlighting</li>
+</ul>
+
+<p><strong>Shopping Cart</strong></p>
+<ul>
+  <li>Persistent cart (stored in browser localStorage + synced to backend session)</li>
+  <li>Quantity adjustment with +/- controls</li>
+  <li>Running subtotal and total calculations</li>
+  <li>Remove individual items or clear cart</li>
+  <li>Cart icon with item count in header (always visible)</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- 4. PRODUCT DATA STRATEGY -->
+<h2>4. Product Data Strategy (Scraping)</h2>
+<p class="section-intro">Products will be sourced from two supplier websites and organized into JobFuture's own category structure. Authorization has been obtained from both Ahlsell and Onninen for data extraction.</p>
+
+<h3>4.1 Source: Ahlsell — INNOVA Products</h3>
+<table>
+  <tr><th>Detail</th><th>Value</th></tr>
+  <tr><td>URL</td><td>ahlsell.fi/search?parameters.SearchPhrase=Innova</td></tr>
+  <tr><td>Scope</td><td>All products matching "Innova" brand</td></tr>
+  <tr><td>Auth Required</td><td>Yes — login credentials needed</td></tr>
+  <tr><td>Authorization</td><td>Granted by Ahlsell</td></tr>
+  <tr><td>Pagination</td><td>Must follow all result pages</td></tr>
+  <tr><td>Data to Extract</td><td>Product name, SKU, description, price, images, specifications, manufacturer</td></tr>
+</table>
+
+<h3>4.2 Source: Onninen — Refrigeration Categories</h3>
+<table>
+  <tr><th>Category (Finnish)</th><th>URL Path</th></tr>
+  <tr><td>Venttiilit (Valves)</td><td>/kylma/venttiilit/c/777</td></tr>
+  <tr><td>Kylmän asennustarvikkeet (Installation supplies)</td><td>/kylma/kylman-asennustarvikkeet/c/787</td></tr>
+  <tr><td>Kylmäaineet ja lämmönsiirtonesteet (Refrigerants &amp; heat transfer fluids)</td><td>/kylma/kylmaaineet-ja-lammonsiirtonesteet/c/797</td></tr>
+  <tr><td>Ohjaus ja valvonta (Control &amp; monitoring)</td><td>/kylma/ohjaus-ja-valvonta/c/803</td></tr>
+  <tr><td>Asennuskanava (Installation channels)</td><td>/search?term=asennuskanava</td></tr>
+  <tr><td>Suojakouru (Protective conduit)</td><td>/search?term=suojakouru</td></tr>
+</table>
+
+<div class="success-box">
+  <strong>Authorization:</strong> Permission has been granted by both Ahlsell and Onninen for automated product data extraction. Scraping will be performed using authenticated sessions with respectful rate limiting.
+</div>
+
+<h3>4.3 Data Model</h3>
+<p>Each scraped product will be stored with the following structure:</p>
+<table>
+  <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+  <tr><td>id</td><td>UUID</td><td>Internal unique identifier</td></tr>
+  <tr><td>name</td><td>String</td><td>Product name (Finnish)</td></tr>
+  <tr><td>sku</td><td>String</td><td>Product code / SKU from supplier</td></tr>
+  <tr><td>description</td><td>Text</td><td>Product description</td></tr>
+  <tr><td>price</td><td>Decimal</td><td>Unit price (EUR, ex. VAT)</td></tr>
+  <tr><td>images</td><td>Array</td><td>Product image URLs (downloaded locally)</td></tr>
+  <tr><td>manufacturer</td><td>String</td><td>Brand / manufacturer name</td></tr>
+  <tr><td>category</td><td>FK</td><td>Link to category</td></tr>
+  <tr><td>subcategory</td><td>FK</td><td>Link to subcategory</td></tr>
+  <tr><td>source</td><td>Enum</td><td>ahlsell | onninen</td></tr>
+  <tr><td>source_url</td><td>String</td><td>Original product page URL</td></tr>
+  <tr><td>specifications</td><td>JSON</td><td>Technical specs (key-value pairs)</td></tr>
+  <tr><td>last_scraped</td><td>DateTime</td><td>When the product was last updated from source</td></tr>
+</table>
+
+<h3>4.4 Category Structure</h3>
+<p>Products will be organized into a two-level hierarchy:</p>
+<ul>
+  <li><strong>INNOVA Products</strong> (from Ahlsell) — sub-organized by product type / manufacturer subcategory</li>
+  <li><strong>Venttiilit</strong> — Valves and valve accessories</li>
+  <li><strong>Asennustarvikkeet</strong> — Refrigeration installation supplies</li>
+  <li><strong>Kylmäaineet</strong> — Refrigerants and heat transfer fluids</li>
+  <li><strong>Ohjaus ja valvonta</strong> — Control, monitoring, and automation</li>
+  <li><strong>Asennuskanavat</strong> — Installation channels and cable trays</li>
+  <li><strong>Suojakourut</strong> — Protective conduits and covers</li>
+</ul>
+<p>Additional categories and subcategories can be created via the admin panel as needed.</p>
+
+<div class="page-break"></div>
+
+<!-- 5. TECHNOLOGY STACK -->
+<h2>5. Technology Stack</h2>
+<p class="section-intro">Recommended stack optimized for a catalog/wholesale site with PDF generation needs.</p>
+
+<h3>5.1 Frontend</h3>
+<p>
+  <span class="tech-badge">Next.js 15</span>
+  <span class="tech-badge">React 19</span>
+  <span class="tech-badge">TypeScript</span>
+  <span class="tech-badge">Tailwind CSS</span>
+</p>
+<ul>
+  <li><strong>Next.js</strong> — Full-stack React framework with server-side rendering for fast page loads and SEO</li>
+  <li><strong>Tailwind CSS</strong> — Utility-first CSS for rapid, consistent UI development</li>
+  <li><strong>TypeScript</strong> — Type safety across the entire codebase</li>
+</ul>
+
+<h3>5.2 Backend &amp; API</h3>
+<p>
+  <span class="tech-badge">Next.js API Routes</span>
+  <span class="tech-badge">Prisma ORM</span>
+  <span class="tech-badge">PostgreSQL</span>
+</p>
+<ul>
+  <li><strong>Next.js API Routes</strong> — Backend logic co-located with frontend, simplifying deployment</li>
+  <li><strong>Prisma</strong> — Type-safe ORM for database operations with migration support</li>
+  <li><strong>PostgreSQL</strong> — Robust relational database for structured product data</li>
+</ul>
+
+<h3>5.3 Scraping</h3>
+<p>
+  <span class="tech-badge">Python</span>
+  <span class="tech-badge">Playwright</span>
+  <span class="tech-badge">BeautifulSoup</span>
+</p>
+<ul>
+  <li><strong>Python + Playwright</strong> — Browser automation for authenticated scraping sessions</li>
+  <li><strong>BeautifulSoup</strong> — HTML parsing and data extraction</li>
+  <li>Scraping scripts run independently; output is imported into PostgreSQL</li>
+</ul>
+
+<h3>5.4 PDF Generation</h3>
+<p>
+  <span class="tech-badge">React-PDF</span> or <span class="tech-badge">Puppeteer</span>
+</p>
+<ul>
+  <li>Server-side PDF generation from order data</li>
+  <li>Branded template with JobFuture logo, customer details, product table, and totals</li>
+</ul>
+
+<h3>5.5 Deployment &amp; Infrastructure</h3>
+<p>
+  <span class="tech-badge">Render</span>
+  <span class="tech-badge">PostgreSQL</span>
+</p>
+<ul>
+  <li><strong>Render:</strong> All-in-one platform for Next.js hosting and managed PostgreSQL. Simple, cost-effective, and everything in one dashboard.</li>
+  <li>Automatic deploys from Git, built-in SSL, and EU region support</li>
+</ul>
+
+<div class="highlight-box">
+  <strong>Platform:</strong> <strong>Render</strong> — single platform for web application, database, and static assets. Minimizes cost and operational complexity.
+</div>
+
+<div class="page-break"></div>
+
+<!-- 6. DESIGN & UX -->
+<h2>6. Design &amp; User Experience</h2>
+
+<h3>6.1 Design Principles</h3>
+<ul>
+  <li><strong>Professional &amp; Clean:</strong> B2B aesthetic — no clutter, clear information hierarchy</li>
+  <li><strong>Fast &amp; Functional:</strong> Wholesale buyers want efficiency, not flashy animations</li>
+  <li><strong>Mobile-Responsive:</strong> Technicians may browse on job sites from phones/tablets</li>
+  <li><strong>Accessible:</strong> WCAG 2.1 AA compliance as a target</li>
+</ul>
+
+<h3>6.2 Color Palette (Based on JobFuture Brand Identity)</h3>
+<table>
+  <tr><th>Role</th><th>Color</th><th>Usage</th></tr>
+  <tr><td>Primary</td><td style="color:#1b7a8c"><strong>#1b7a8c</strong> (Brand Teal)</td><td>Headers, buttons, navigation, links</td></tr>
+  <tr><td>Primary Dark</td><td style="color:#145c6a"><strong>#145c6a</strong> (Deep Teal)</td><td>Hover states, active elements</td></tr>
+  <tr><td>Secondary</td><td style="color:#0f1a1e"><strong>#0f1a1e</strong> (Near Black)</td><td>Footer, dark sections, contrast backgrounds</td></tr>
+  <tr><td>Accent</td><td style="color:#e8a838"><strong>#e8a838</strong> (Warm Amber)</td><td>CTAs, cart icon, badges, alerts</td></tr>
+  <tr><td>Background</td><td><strong>#f4f6f7</strong> (Cool Gray)</td><td>Page background</td></tr>
+  <tr><td>Surface</td><td><strong>#ffffff</strong> (White)</td><td>Cards, content areas, modals</td></tr>
+  <tr><td>Text</td><td><strong>#1a1a1a</strong> (Near Black)</td><td>Body text</td></tr>
+  <tr><td>Muted</td><td style="color:#6b7280"><strong>#6b7280</strong> (Mid Gray)</td><td>Secondary text, borders, captions</td></tr>
+</table>
+<p>Logo: <strong>#1b7a8c</strong> teal on black/white background per existing brand assets. The warm amber accent provides strong contrast against teal for call-to-action buttons (add to cart, checkout) without clashing.</p>
+
+<h3>6.3 Key UI Components</h3>
+<ul>
+  <li><strong>Sticky Header:</strong> Logo, search bar, category dropdown, cart icon with count</li>
+  <li><strong>Sidebar Filters:</strong> Collapsible category tree, manufacturer checkboxes, price range slider</li>
+  <li><strong>Product Cards:</strong> Image, name, SKU, price, quick-add button</li>
+  <li><strong>Cart Drawer:</strong> Slide-out cart panel for quick review without leaving the current page</li>
+  <li><strong>Order Form:</strong> Clean form with company name, contact person, email, phone, delivery address, and notes</li>
+</ul>
+
+<h3>6.4 Responsive Breakpoints</h3>
+<table>
+  <tr><th>Breakpoint</th><th>Layout</th></tr>
+  <tr><td>Desktop (1024px+)</td><td>Sidebar + 3-4 column product grid</td></tr>
+  <tr><td>Tablet (768–1023px)</td><td>Collapsible sidebar + 2 column grid</td></tr>
+  <tr><td>Mobile (&lt;768px)</td><td>Full-width cards, bottom sheet filters, hamburger menu</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 7. PDF ORDER GENERATION -->
+<h2>7. PDF Order Generation &amp; Workflow</h2>
+
+<h3>7.1 Order Flow</h3>
+<ol>
+  <li>Customer browses catalog and adds products to cart</li>
+  <li>Customer clicks <strong>"Tee tilaus"</strong> (Make Order)</li>
+  <li>Customer fills in company/contact details on the order form</li>
+  <li>System generates a branded PDF containing:
+    <ul>
+      <li>JobFuture logo and company details</li>
+      <li>Customer/company information</li>
+      <li>Order date and unique reference number</li>
+      <li>Product table: SKU, name, quantity, unit price, line total</li>
+      <li>Subtotal, VAT (25.5%), and grand total</li>
+      <li>Notes/comments field</li>
+    </ul>
+  </li>
+  <li>PDF is downloaded to customer's device</li>
+  <li>Customer is shown instructions: <em>"Lähetä tilaus sähköpostilla osoitteeseen info@jobfuture.fi"</em></li>
+  <li><strong>Optional enhancement:</strong> "Send Order" button that auto-attaches PDF to a pre-filled email draft</li>
+</ol>
+
+<h3>7.2 PDF Template Layout</h3>
+<table>
+  <tr><th>Section</th><th>Content</th></tr>
+  <tr><td>Header</td><td>JobFuture logo, company name, address, Y-tunnus (business ID)</td></tr>
+  <tr><td>Customer Info</td><td>Company name, contact person, email, phone, delivery address</td></tr>
+  <tr><td>Order Meta</td><td>Order reference #, date, payment terms</td></tr>
+  <tr><td>Product Table</td><td>Columns: #, SKU, Product Name, Qty, Unit Price, Total</td></tr>
+  <tr><td>Summary</td><td>Subtotal (ex. VAT), VAT 25.5%, Grand Total</td></tr>
+  <tr><td>Footer</td><td>Notes, "Lähetä osoitteeseen info@jobfuture.fi", company footer</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 8. PROJECT PHASES -->
+<h2>8. Project Phases &amp; Timeline</h2>
+
+<div class="phase">
+  <div class="phase-title">Phase 1 — Foundation &amp; Data Import (Weeks 1–2)</div>
+  <ul>
+    <li>Set up project repository, Next.js scaffold, database schema</li>
+    <li>Build Python scraping scripts for Ahlsell (INNOVA) and Onninen</li>
+    <li>Handle authenticated sessions, pagination, and data extraction</li>
+    <li>Import scraped products into PostgreSQL with proper categorization</li>
+    <li>Set up product image storage</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-title">Phase 2 — Catalog &amp; Frontend (Weeks 3–4)</div>
+  <ul>
+    <li>Build product listing pages with category navigation</li>
+    <li>Implement product detail pages</li>
+    <li>Build search functionality with autocomplete</li>
+    <li>Implement filters (category, manufacturer, price range)</li>
+    <li>Responsive design across all breakpoints</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-title">Phase 3 — Cart &amp; PDF Checkout (Weeks 5–6)</div>
+  <ul>
+    <li>Build shopping cart with add/remove/quantity management</li>
+    <li>Create order form with validation</li>
+    <li>Implement PDF generation with branded template</li>
+    <li>Build "download PDF" and optional "email order" flow</li>
+    <li>Cart persistence (localStorage + session)</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-title">Phase 4 — Admin Panel &amp; Polish (Weeks 7–8)</div>
+  <ul>
+    <li>Admin authentication (simple, secure login)</li>
+    <li>Product management (add, edit, delete, bulk import)</li>
+    <li>Category management interface</li>
+    <li>Re-scrape trigger with diff detection (new/updated/removed products)</li>
+    <li>Pricing override (ability to set custom JobFuture prices)</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-title">Phase 5 — Testing &amp; Launch (Weeks 9–10)</div>
+  <ul>
+    <li>Cross-browser and device testing</li>
+    <li>Performance optimization (image lazy loading, caching)</li>
+    <li>SEO setup (meta tags, sitemap, structured data)</li>
+    <li>Domain setup and DNS configuration</li>
+    <li>Deployment to production environment</li>
+    <li>Handover documentation and admin training</li>
+  </ul>
+</div>
+
+<div class="highlight-box">
+  <strong>Total estimated timeline:</strong> 8–10 weeks from project kickoff to launch. Timeline is flexible and can be adjusted based on feedback cycles and scope refinements.
+</div>
+
+<div class="page-break"></div>
+
+<!-- 9. HOSTING & DEPLOYMENT -->
+<h2>9. Hosting &amp; Deployment</h2>
+
+<h3>9.1 Platform: Render</h3>
+<p>All services hosted on <strong>Render</strong> — a single platform for the web application, database, and static assets. This keeps operations simple, costs low, and everything under one roof.</p>
+
+<table>
+  <tr><th>Component</th><th>Render Service</th><th>Est. Monthly Cost</th></tr>
+  <tr><td>Web Application</td><td>Render Web Service (Starter)</td><td>~$7/mo</td></tr>
+  <tr><td>Database</td><td>Render PostgreSQL (Starter)</td><td>~$7/mo</td></tr>
+  <tr><td>Image Storage</td><td>Render Disk (included with web service)</td><td>$0</td></tr>
+  <tr><td>Domain</td><td>jobfuture.fi (existing)</td><td>~$15/yr</td></tr>
+  <tr><td><strong>Total</strong></td><td></td><td><strong>~$15/mo</strong></td></tr>
+</table>
+
+<div class="highlight-box">
+  <strong>Cost-effective:</strong> By consolidating everything on Render, monthly costs are kept under $20/mo — significantly cheaper than multi-service alternatives. Plans can be scaled up as traffic grows.
+</div>
+
+<!-- 10. RISKS -->
+<h2>10. Risks &amp; Considerations</h2>
+
+<table>
+  <tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr>
+  <tr>
+    <td><strong>Scraping fragility</strong></td>
+    <td>Source sites may change HTML structure, breaking scrapers</td>
+    <td>Modular scraper design with error alerting; periodic manual review; admin re-scrape trigger</td>
+  </tr>
+  <tr>
+    <td><strong>IP blocking</strong></td>
+    <td>Supplier sites may block scraping requests</td>
+    <td>Respectful rate limiting; rotating user agents; run from VPS IP; only scrape during off-peak hours</td>
+  </tr>
+  <tr>
+    <td><strong>Price accuracy</strong></td>
+    <td>Scraped prices may become stale</td>
+    <td>Scheduled re-scraping (weekly or daily); "prices subject to confirmation" disclaimer on site; admin override capability</td>
+  </tr>
+  <tr>
+    <td><strong>Authentication changes</strong></td>
+    <td>Login flows on source sites may change (2FA, captcha)</td>
+    <td>Monitor login success; fallback to manual CSV import; admin notification on scrape failure</td>
+  </tr>
+</table>
+
+<div class="success-box">
+  <strong>Data Access Authorization:</strong> Permission has been obtained from both Ahlsell and Onninen for automated product data extraction, eliminating the primary legal risk. Regular communication with both suppliers is recommended to maintain this arrangement and explore potential direct data feed or API access as a long-term enhancement.
+</div>
+
+<div class="page-break"></div>
+
+<h2>Next Steps</h2>
+<ol>
+  <li><strong>Review &amp; Approve</strong> this proposal</li>
+  <li><strong>Provide</strong> login credentials for Ahlsell and Onninen (securely)</li>
+  <li><strong>Confirm</strong> Render account setup and deployment configuration</li>
+  <li><strong>Kick off</strong> Phase 1 — Foundation &amp; Data Import</li>
+</ol>
+
+<div class="highlight-box" style="margin-top: 30px;">
+  <strong>Contact:</strong><br>
+  For questions about this proposal, please reach out to discuss further.<br>
+  We look forward to building JobFuture's digital catalog.
+</div>
+
+</body>
+</html>
