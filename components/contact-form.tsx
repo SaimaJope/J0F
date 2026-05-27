@@ -5,11 +5,13 @@ import { useState } from "react";
 type Status = "idle" | "sending" | "ok" | "error";
 
 const topics = [
-  { value: "suunnittelu", label: "Sähkösuunnittelu" },
-  { value: "konsultaatio", label: "Sähkökonsultaatio" },
-  { value: "valvonta", label: "Sähkötöiden valvonta" },
-  { value: "tarkastus", label: "Tarkastus tai kuntoarvio" },
-  { value: "omakotitalo", label: "Omakotitalon sähkötyöt" },
+  { value: "kuntotutkimus", label: "Sähköjärjestelmien kuntotutkimus" },
+  { value: "kaapelitutkaus", label: "Kaapelitutkaus" },
+  { value: "tarvikkeet", label: "LVI- tai sähkötarvikkeet" },
+  { value: "lampopumppu", label: "Ilmalämpöpumppu tai jäähdytyslaite" },
+  { value: "konsultointi", label: "Sähkö- tai telejärjestelmien konsultointi" },
+  { value: "korjaus-asennus", label: "Korjaus- tai asennuspalvelu" },
+  { value: "suunnittelu", label: "Pienimuotoinen suunnittelu" },
   { value: "muu", label: "Muu" }
 ];
 

@@ -5,7 +5,6 @@ type Service = {
   index: string;
   title: string;
   description: string;
-  scope: string[];
 };
 
 type PhotoSlotProps = {
@@ -20,36 +19,53 @@ type PhotoSlotProps = {
 const services: Service[] = [
   {
     index: "01",
-    title: "Sähkösuunnittelu",
+    title: "Sähköjärjestelmien kuntotutkimukset",
     description:
-      "Uudis- ja saneerauskohteiden sähkösuunnittelu pientaloista toimitiloihin. Toteutamme piirustukset, valaistus-, ryhmitys- ja maadoitussuunnitelmat sekä kustannusarviot.",
-    scope: ["Sähköpiirustukset", "Valaistus ja ryhmitys", "Kustannusarviot"]
+      "Teemme sähköjärjestelmien kuntoon ja toimivuuteen liittyviä tarkasteluja ja selvityksiä. Kuntotutkimuksen avulla voidaan arvioida järjestelmän nykytilaa, korjaustarpeita ja mahdollisia jatkotoimenpiteitä."
   },
   {
     index: "02",
-    title: "Sähkökonsultaatio",
+    title: "Kaapelitutkaukset",
     description:
-      "Riippumaton tekninen arvio sähköjärjestelmistä ja energiankäytöstä. Käytännöllistä tukea hankkeen alkuvaiheeseen, modernisointiin ja teknisiin vertailuihin.",
-    scope: ["Hankesuunnittelu", "Tekninen vertailu", "Energiatehokkuus"]
+      "Tarjoamme kaapelitutkauksiin liittyviä palveluita esimerkiksi kaapeleiden sijainnin, kunnon tai vikatilanteiden selvittämiseen."
   },
   {
     index: "03",
-    title: "Sähkötöiden valvonta",
+    title: "LVI- ja sähkötarvikkeiden tarjoukset ja myynti",
     description:
-      "Työmaavalvonta tilaajan puolesta. Seuraamme aikataulua, kustannuksia ja laatua sekä huolehdimme dokumentoinnista urakan loppuun asti.",
-    scope: ["Työmaakatselmukset", "Laadunvarmistus", "Dokumentointi"]
+      "Teemme tarjouksia LVI- ja sähkötarvikkeista asiakkaan tarpeiden mukaan. Tarvikkeet toimitetaan sovitun tarjouksen perusteella."
   },
   {
     index: "04",
-    title: "Tarkastukset ja kuntoarviot",
+    title: "Ilmalämpöpumppujen ja jäähdytyslaitteiden tarjoukset ja myynti",
     description:
-      "Sähkölaitteistojen määräaikais- ja käyttöönottotarkastukset sekä kuntoarviot. Tunnistamme korjaustarpeet ennen kuin niistä tulee ongelma.",
-    scope: ["Määräaikaistarkastus", "Käyttöönottotarkastus", "Kuntoarvio"]
+      "Tarjoamme ilmalämpöpumppuihin ja jäähdytyslaitteisiin liittyviä tarjous- ja myyntipalveluita. Autamme sopivan laitteen valinnassa kohteen ja käyttötarpeen mukaan."
+  },
+  {
+    index: "05",
+    title: "Sähkö- ja telejärjestelmien konsultointi",
+    description:
+      "Annamme asiantuntevaa konsultointia sähkö- ja telejärjestelmiin liittyvissä kysymyksissä. Konsultointi voi liittyä esimerkiksi järjestelmien kehittämiseen, korjaustarpeisiin, toteutusvaihtoehtoihin tai hankintojen suunnitteluun."
+  },
+  {
+    index: "06",
+    title: "Pienimuotoiset sähkö-, tele- ja kylmätekniikan korjaus- ja asennuspalvelut",
+    description:
+      "Toteutamme pienimuotoisia korjaus- ja asennustöitä sähkö-, tele- ja kylmätekniikan kohteissa. Työt arvioidaan aina tapauskohtaisesti."
+  },
+  {
+    index: "07",
+    title: "Pienimuotoiset sähkö- ja telejärjestelmien suunnittelut",
+    description:
+      "Laadimme pienimuotoisia sähkö- ja telejärjestelmien suunnitelmia asiakkaan tarpeiden mukaisesti."
   }
 ];
 
 const meta = [
-  { label: "Toimiala", value: "Sähkösuunnittelu, konsultointi ja valvonta" },
+  {
+    label: "Toimiala",
+    value: "Tekniset palvelut, konsultointi ja tarvikemyynti"
+  },
   { label: "Sijainti", value: "Myllärintie 5, 71470 Oravikoski" },
   { label: "Puhelin", value: "044 572 3200", href: "tel:+358445723200" },
   { label: "Sähköposti", value: "info@jobfuture.fi", href: "mailto:info@jobfuture.fi" },
@@ -57,17 +73,10 @@ const meta = [
 ];
 
 const heroFacts = [
-  { label: "Sijainti", value: "Oravikoski, Pohjois-Savo" },
-  { label: "Y-tunnus", value: "2650982-5" },
+  { label: "Palvelut", value: "Sähkö, tele, LVI ja kylmätekniikka" },
+  { label: "Toimitus", value: "Erillisen tarjouksen perusteella" },
   { label: "Puhelin", value: "044 572 3200", href: "tel:+358445723200" },
-  { label: "Vastaus", value: "Yleensä saman arkipäivän aikana" }
-];
-
-const omakotitaloScope = [
-  "Sähkösuunnitelma kohteen lähtötietojen pohjalta",
-  "Kustannusarvio ja materiaalilista ennen aloitusta",
-  "Työmaavalvonta ja laadunvarmistus",
-  "Käyttöönottotarkastus ja luovutusdokumentit"
+  { label: "Sijainti", value: "Oravikoski, Pohjois-Savo" }
 ];
 
 export default function Home() {
@@ -78,7 +87,6 @@ export default function Home() {
       <main>
         <Hero />
         <ServicesSection />
-        <OmakotitaloSection />
         <ContactSection />
       </main>
 
@@ -107,8 +115,8 @@ function SiteHeader() {
           <a href="#palvelut" className="transition hover:text-accent-ink">
             Palvelut
           </a>
-          <a href="#omakotitalo" className="transition hover:text-accent-ink">
-            Omakotitalot
+          <a href="#tarjous" className="transition hover:text-accent-ink">
+            Tarjous
           </a>
           <a href="#yhteys" className="transition hover:text-accent-ink">
             Yhteys
@@ -126,7 +134,7 @@ function SiteHeader() {
             href="#yhteys"
             className="inline-flex items-center justify-center border border-accent bg-accent px-4 py-2.5 font-semibold text-white shadow-[0_10px_24px_rgba(23,111,125,0.22)] transition hover:border-accent-ink hover:bg-accent-ink"
           >
-            Ota yhteyttä
+            Pyydä tarjous
           </a>
         </div>
       </div>
@@ -147,22 +155,22 @@ function Hero() {
       </div>
 
       <div className="mx-auto flex min-h-[calc(100svh-64px)] max-w-page flex-col justify-end px-5 pb-8 pt-20 sm:px-6 lg:px-10 lg:pb-10 lg:pt-24">
-        <div className="max-w-[760px] pb-10 lg:pb-16">
+        <div className="max-w-[820px] pb-10 lg:pb-16">
           <SectionLabel index="001" name="JobFuture Oy" tone="dark" />
 
           <h1 className="mt-8 font-display text-[46px] leading-[0.98] tracking-display text-white sm:text-[70px] lg:text-[92px]">
-            Sähkösuunnittelua,
+            Teknisiä palveluita,
             <br />
-            valvontaa ja
+            konsultointia ja
             <br />
-            <span className="italic text-accent-soft">tarkastuksia.</span>
+            <span className="italic text-accent-soft">tarvikemyyntiä.</span>
           </h1>
 
-          <p className="mt-8 max-w-[58ch] text-[16px] leading-[1.75] text-white/80 lg:text-[18px]">
-            JobFuture Oy on sähköalan suunnittelu- ja konsultointiyritys
-            Pohjois-Savosta. Vastaamme kohteen sähköteknisestä laadusta
-            suunnittelupöydältä käyttöönottoon. Rakennuttajille, taloyhtiöille
-            ja omakotitaloille.
+          <p className="mt-8 max-w-[62ch] text-[16px] leading-[1.75] text-white/80 lg:text-[18px]">
+            JobFuture Oy tarjoaa sähkö-, tele-, LVI- ja kylmätekniikkaan
+            liittyviä palveluita joustavasti ja tapauskohtaisesti. Työt,
+            toimitukset ja konsultointi toteutetaan selkeän tarjouksen
+            perusteella.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4 text-[14px]">
@@ -170,16 +178,16 @@ function Hero() {
               href="#yhteys"
               className="group inline-flex items-center gap-3 border border-white bg-surface px-6 py-4 font-semibold text-night shadow-[0_20px_44px_rgba(0,0,0,0.24)] transition hover:border-accent-soft hover:bg-accent-soft"
             >
-              Ota yhteyttä
+              Pyydä tarjous
               <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
                 →
               </span>
             </a>
             <a
-              href="tel:+358445723200"
+              href="#palvelut"
               className="border-b border-white/30 py-1 text-white/80 transition hover:border-white hover:text-white"
             >
-              Soita 044 572 3200
+              Katso palvelut
             </a>
           </div>
         </div>
@@ -242,97 +250,62 @@ function ServicesSection() {
   return (
     <section id="palvelut" className="border-b border-rule-muted bg-surface">
       <div className="mx-auto max-w-page px-5 py-20 sm:px-6 lg:px-10 lg:py-28">
-        <div className="grid grid-cols-1 gap-x-12 gap-y-12 lg:grid-cols-12">
-          <header className="lg:col-span-5">
+        <header className="border-b border-rule-muted pb-10">
+          <div>
             <SectionLabel index="002" name="Palvelut" />
-            <h2 className="mt-6 max-w-[10ch] font-display text-[38px] leading-[1.02] tracking-display text-ink sm:text-[48px] lg:text-[58px]">
-              Suunnittelusta käyttöönottoon, yhden vastuullisen alla.
+            <h2 className="mt-6 font-display text-[42px] leading-[1.02] tracking-display text-ink sm:text-[56px] lg:text-[70px]">
+              Palvelumme
             </h2>
-            <p className="mt-6 max-w-[44ch] text-[15px] leading-[1.75] text-ink-muted">
-              Toimeksiannot räätälöidään kohteen mukaan. Kerro tarpeesi, niin
-              ehdotamme sopivan laajuuden ja aikataulun.
-            </p>
+          </div>
+        </header>
 
-          </header>
-
-          <ol className="space-y-4 lg:col-span-7">
-            {services.map((service) => (
-              <li
-                key={service.index}
-                className="group border border-rule-muted bg-surface p-5 shadow-[0_14px_42px_rgba(16,21,23,0.05)] transition hover:border-accent hover:shadow-[0_18px_50px_rgba(16,21,23,0.08)] sm:p-7"
-              >
-                <div className="grid gap-6 sm:grid-cols-[56px_1fr]">
-                  <span className="flex h-11 w-11 items-center justify-center border border-accent-soft bg-accent-mist text-[11px] uppercase tracking-label text-accent-ink tabular-nums">
-                    {service.index}
-                  </span>
-                  <div>
-                    <h3 className="font-display text-[29px] leading-tight tracking-display text-ink lg:text-[34px]">
-                      {service.title}
-                    </h3>
-                    <p className="mt-4 max-w-[62ch] text-[15px] leading-[1.7] text-ink-muted">
-                      {service.description}
-                    </p>
-                    <ul className="mt-6 flex flex-wrap gap-2 text-[11px] uppercase tracking-label text-ink-muted">
-                      {service.scope.map((item) => (
-                        <li
-                          key={item}
-                          className="border border-rule bg-surface px-3 py-1.5"
-                        >
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+        <ol className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {services.map((service) => (
+            <li
+              key={service.index}
+              className="group border border-rule-muted bg-surface p-5 shadow-[0_14px_42px_rgba(16,21,23,0.05)] transition hover:border-accent hover:shadow-[0_18px_50px_rgba(16,21,23,0.08)] sm:p-7"
+            >
+              <div className="flex items-start gap-5">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center border border-accent-soft bg-accent-mist text-[11px] uppercase tracking-label text-accent-ink tabular-nums">
+                  {service.index}
+                </span>
+                <div>
+                  <h3 className="font-display text-[27px] leading-tight tracking-display text-ink lg:text-[31px]">
+                    {service.title}
+                  </h3>
+                  <p className="mt-4 text-[15px] leading-[1.7] text-ink-muted">
+                    {service.description}
+                  </p>
                 </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </div>
-    </section>
-  );
-}
+              </div>
+            </li>
+          ))}
+        </ol>
 
-function OmakotitaloSection() {
-  return (
-    <section id="omakotitalo" className="bg-night text-ink-inverse">
-      <div className="mx-auto max-w-page px-5 py-20 sm:px-6 lg:px-10 lg:py-28">
-        <div className="grid grid-cols-1 gap-x-12 gap-y-12 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <SectionLabel index="003" name="Omakotitalot" tone="dark" />
-            <h2 className="mt-6 font-display text-[38px] leading-[1.03] tracking-display text-white sm:text-[48px] lg:text-[58px]">
-              Omakotitalon sähkötyöt, suunniteltuna alusta loppuun.
-            </h2>
-            <p className="mt-6 max-w-[46ch] text-[15px] leading-[1.75] text-white/70">
-              Olipa kyseessä uudiskohde, peruskorjaus tai pelkkä sähkösuunnitelma,
-              tarjoamme selkeän kokonaisuuden. Saat yhden hinnan ja yhden
-              yhteyshenkilön projektin alusta käyttöönottoon.
+        <div
+          id="tarjous"
+          className="mt-5 border border-accent-soft bg-accent-mist p-6 sm:p-8 lg:flex lg:items-center lg:justify-between lg:gap-12"
+        >
+          <div>
+            <h3 className="font-display text-[32px] leading-tight tracking-display text-ink sm:text-[38px]">
+              Kysy rohkeasti tarjous
+            </h3>
+            <p className="mt-4 max-w-[68ch] text-[15px] leading-[1.75] text-ink-muted">
+              Kaikki palvelut ja toimitukset toteutetaan erillisen tarjouksen
+              perusteella. Ota yhteyttä ja kerro tarpeestasi, niin laadimme
+              sinulle selkeän ja kohteeseen sopivan tarjouksen.
             </p>
+          </div>
+          <div className="mt-8 shrink-0 lg:mt-0">
             <a
               href="#yhteys"
-              className="group mt-9 inline-flex items-center gap-3 border-b border-accent-soft py-1 text-[14px] font-semibold text-white transition hover:gap-4 hover:text-accent-soft"
+              className="group inline-flex items-center gap-3 border border-accent bg-accent px-6 py-4 text-[14px] font-semibold text-white shadow-[0_14px_30px_rgba(23,111,125,0.18)] transition hover:border-accent-ink hover:bg-accent-ink"
             >
-              Pyydä tarjous omakotitaloon
+              Pyydä tarjous
               <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
                 →
               </span>
             </a>
-          </div>
-
-          <div className="lg:col-span-7">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {omakotitaloScope.map((item, idx) => (
-                <div
-                  key={item}
-                  className="border border-white/10 bg-white/[0.07] p-6 shadow-[0_18px_52px_rgba(0,0,0,0.16)]"
-                >
-                  <span className="text-[11px] uppercase tracking-label text-accent-soft tabular-nums">
-                    {String(idx + 1).padStart(2, "0")}
-                  </span>
-                  <p className="mt-4 text-[15px] leading-[1.6] text-white/80">{item}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
@@ -346,15 +319,15 @@ function ContactSection() {
       <div className="mx-auto max-w-page px-5 py-20 sm:px-6 lg:px-10 lg:py-28">
         <div className="grid grid-cols-1 gap-x-12 gap-y-12 lg:grid-cols-12">
           <header className="lg:col-span-5">
-            <SectionLabel index="004" name="Ota yhteyttä" />
+            <SectionLabel index="003" name="Ota yhteyttä" />
             <h2 className="mt-6 font-display text-[40px] leading-[1.02] tracking-display text-ink sm:text-[52px] lg:text-[64px]">
-              Lyhyt viesti
+              Kerro
               <br />
-              <span className="italic text-accent-ink">riittää.</span>
+              <span className="italic text-accent-ink">tarpeestasi.</span>
             </h2>
             <p className="mt-6 max-w-[44ch] text-[15px] leading-[1.75] text-ink-muted">
-              Vastaamme yhteydenottoihin yleensä saman arkipäivän aikana.
-              Voit jättää viestin lomakkeella tai pyytää, että soitamme takaisin.
+              Ota yhteyttä ja kerro lyhyesti kohteesta, palvelutarpeesta tai
+              tarvikkeista. Laadimme selkeän ja kohteeseen sopivan tarjouksen.
             </p>
 
             <dl className="mt-10 divide-y divide-rule border-y border-rule">
@@ -409,8 +382,8 @@ function SiteFooter() {
             <span className="text-[13px] font-semibold text-white">JobFuture Oy</span>
           </div>
           <p className="mt-4 max-w-[36ch] text-[13px] leading-[1.65] text-white/60">
-            Sähköalan suunnittelu, konsultointi, valvonta ja tarkastukset.
-            Oravikoski, Pohjois-Savo.
+            Tekniset palvelut, konsultointi ja tarvikemyynti sähkö-, tele-,
+            LVI- ja kylmätekniikan tarpeisiin.
           </p>
         </div>
 

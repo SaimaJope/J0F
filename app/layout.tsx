@@ -17,14 +17,14 @@ const display = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "JobFuture Oy. Sähkösuunnittelu, valvonta ja tarkastukset.",
+  title: "JobFuture Oy. Tekniset palvelut, konsultointi ja tarvikemyynti.",
   description:
-    "JobFuture Oy on sähköalan suunnittelu- ja konsultointiyritys Pohjois-Savosta. Suunnittelu, valvonta, tarkastukset ja kuntoarviot rakennuttajille, taloyhtiöille ja omakotitaloille.",
+    "JobFuture Oy tarjoaa sähkö-, tele-, LVI- ja kylmätekniikkaan liittyviä palveluita, konsultointia ja tarvikemyyntiä tarjousten perusteella.",
   metadataBase: new URL("https://jobfuture.fi"),
   openGraph: {
     title: "JobFuture Oy",
     description:
-      "Sähkösuunnittelua, valvontaa ja tarkastuksia. Oravikoski, Pohjois-Savo.",
+      "Teknisiä palveluita, konsultointia ja tarvikemyyntiä. Oravikoski, Pohjois-Savo.",
     type: "website",
     locale: "fi_FI"
   }
