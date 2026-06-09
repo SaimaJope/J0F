@@ -102,7 +102,10 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(
-      { error: "Viestin lähetys epäonnistui." },
+      {
+        error:
+          "Sähköpostipalvelu hylkäsi lähetyksen. Tarkista Resend API-avain ja lähettävä domain."
+      },
       { status: 502 }
     );
   }

@@ -51,7 +51,13 @@ export function ContactForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-      if (!response.ok) throw new Error("Lähetys epäonnistui.");
+      if (!response.ok) {
+        const result = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+
+        throw new Error(result?.error || "Lähetys epäonnistui.");
+      }
       setStatus("ok");
       (event.target as HTMLFormElement).reset();
     } catch (err) {
