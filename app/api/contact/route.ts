@@ -11,7 +11,7 @@ type ContactPayload = {
   callback?: boolean;
 };
 
-const contactRecipient = process.env.CONTACT_TO_EMAIL?.trim() || "info@jobkauppa.fi";
+const contactRecipient = process.env.CONTACT_TO_EMAIL?.trim() || "info@jobfuture.fi";
 const resendApiKey = process.env.RESEND_API_KEY?.trim();
 const contactSender = process.env.CONTACT_FROM_EMAIL?.trim();
 

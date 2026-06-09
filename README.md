@@ -50,8 +50,8 @@ The contact form sends messages through the Resend Email API from the server-sid
 `/api/contact` route. Set these environment variables locally and in Render:
 
 - `RESEND_API_KEY` - Resend API key with send permissions
-- `CONTACT_FROM_EMAIL` - verified sender address, for example `JobFuture <noreply@jobkauppa.fi>`
-- `CONTACT_TO_EMAIL` - inbox that receives form messages, defaults to `info@jobkauppa.fi`
+- `CONTACT_FROM_EMAIL` - verified sender address, for example `JobFuture <noreply@jobfuture.fi>`
+- `CONTACT_TO_EMAIL` - inbox that receives form messages, defaults to `info@jobfuture.fi`
 
 The sending domain must be verified in Resend before production delivery works.
 
