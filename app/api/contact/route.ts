@@ -74,7 +74,8 @@ export async function POST(request: Request) {
     method: "POST",
     headers: {
       Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "User-Agent": "JobFuture contact form"
     },
     body: JSON.stringify({
       from: contactSender,
