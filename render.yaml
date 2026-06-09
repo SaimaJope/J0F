@@ -7,3 +7,9 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 22.16.0
+      - key: CONTACT_TO_EMAIL
+        value: info@jobkauppa.fi
+      - key: CONTACT_FROM_EMAIL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false

@@ -44,6 +44,17 @@ Importer normalization enforces:
 
 You can adjust markup with `IMPORT_MARKUP_PERCENT` in `.env`.
 
+## Contact form email
+
+The contact form sends messages through the Resend Email API from the server-side
+`/api/contact` route. Set these environment variables locally and in Render:
+
+- `RESEND_API_KEY` - Resend API key with send permissions
+- `CONTACT_FROM_EMAIL` - verified sender address, for example `JobFuture <noreply@jobkauppa.fi>`
+- `CONTACT_TO_EMAIL` - inbox that receives form messages, defaults to `info@jobkauppa.fi`
+
+The sending domain must be verified in Resend before production delivery works.
+
 ## Structure
 
 - `app/` - Next.js App Router UI
