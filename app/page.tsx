@@ -108,7 +108,7 @@ function SiteHeader() {
             priority
             className="h-8 w-8 shrink-0 object-contain"
           />
-          <span className="truncate text-[14px] font-semibold">JobFuture Oy</span>
+          <span className="truncate text-[14px] font-semibold">Job Future Oy</span>
         </a>
 
         <nav className="hidden items-center gap-8 text-[13px] font-medium text-ink-muted md:flex">
@@ -156,7 +156,7 @@ function Hero() {
 
       <div className="mx-auto flex min-h-[calc(100svh-64px)] max-w-page flex-col justify-end px-5 pb-8 pt-20 sm:px-6 lg:px-10 lg:pb-10 lg:pt-24">
         <div className="max-w-[820px] pb-10 lg:pb-16">
-          <SectionLabel index="001" name="JobFuture Oy" tone="dark" />
+          <SectionLabel index="001" name="Job Future Oy" tone="dark" />
 
           <h1 className="mt-8 font-display text-[46px] leading-[0.98] tracking-display text-white sm:text-[70px] lg:text-[92px]">
             Teknisiä palveluita,
@@ -167,7 +167,7 @@ function Hero() {
           </h1>
 
           <p className="mt-8 max-w-[62ch] text-[16px] leading-[1.75] text-white/80 lg:text-[18px]">
-            JobFuture Oy tarjoaa sähkö-, tele-, LVI- ja kylmätekniikkaan
+            Job Future Oy tarjoaa sähkö-, tele-, LVI- ja kylmätekniikkaan
             liittyviä palveluita joustavasti ja tapauskohtaisesti. Työt,
             toimitukset ja konsultointi toteutetaan selkeän tarjouksen
             perusteella.
@@ -379,7 +379,7 @@ function SiteFooter() {
               height={30}
               className="h-[30px] w-[30px] object-contain"
             />
-            <span className="text-[13px] font-semibold text-white">JobFuture Oy</span>
+            <span className="text-[13px] font-semibold text-white">Job Future Oy</span>
           </div>
           <p className="mt-4 max-w-[36ch] text-[13px] leading-[1.65] text-white/60">
             Tekniset palvelut, konsultointi ja tarvikemyynti sähkö-, tele-,
@@ -420,7 +420,7 @@ function SiteFooter() {
         <div className="md:col-span-2 md:text-right">
           <p className="text-[11px] uppercase tracking-label text-accent-soft">Yritys</p>
           <p className="mt-4 tabular-nums">Y-tunnus 2650982-5</p>
-          <p className="mt-1 text-white/40">© {new Date().getFullYear()} JobFuture Oy</p>
+          <p className="mt-1 text-white/40">© {new Date().getFullYear()} Job Future Oy</p>
         </div>
       </div>
     </footer>

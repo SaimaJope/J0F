@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Instrument_Serif } from "next/font/google";
+import { SiteLoader } from "../components/site-loader";
 import "./globals.css";
 
 const sans = Inter({
@@ -17,12 +18,21 @@ const display = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "JobFuture Oy. Tekniset palvelut, konsultointi ja tarvikemyynti.",
+  title: "Job Future Oy. Tekniset palvelut, konsultointi ja tarvikemyynti.",
   description:
-    "JobFuture Oy tarjoaa sähkö-, tele-, LVI- ja kylmätekniikkaan liittyviä palveluita, konsultointia ja tarvikemyyntiä tarjousten perusteella.",
+    "Job Future Oy tarjoaa sähkö-, tele-, LVI- ja kylmätekniikkaan liittyviä palveluita, konsultointia ja tarvikemyyntiä tarjousten perusteella.",
   metadataBase: new URL("https://jobfuture.fi"),
+  icons: {
+    icon: [
+      {
+        url: "/favicon-32x32.png",
+        sizes: "32x32",
+        type: "image/png"
+      }
+    ]
+  },
   openGraph: {
-    title: "JobFuture Oy",
+    title: "Job Future Oy",
     description:
       "Teknisiä palveluita, konsultointia ja tarvikemyyntiä. Oravikoski, Pohjois-Savo.",
     type: "website",
@@ -37,7 +47,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fi" className={`${sans.variable} ${display.variable}`}>
-      <body className="bg-canvas text-ink">{children}</body>
+      <body className="bg-canvas text-ink">
+        <SiteLoader />
+        {children}
+      </body>
     </html>
   );
 }

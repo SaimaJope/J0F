@@ -4,6 +4,14 @@ import { useState } from "react";
 
 type Status = "idle" | "sending" | "ok" | "error";
 
+// Keep the spinner on screen for a graceful minimum, so the experience
+// always feels deliberate even when the API responds instantly.
+const MIN_SENDING_MS = 1400;
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 const topics = [
   { value: "kuntotutkimus", label: "Sähköjärjestelmien kuntotutkimus" },
   { value: "kaapelitutkaus", label: "Kaapelitutkaus" },
@@ -26,10 +34,9 @@ export function ContactForm() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus("sending");
-    setError(null);
+    const form = event.currentTarget;
 
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(form);
     const payload = {
       name: String(formData.get("name") ?? "").trim(),
       email: String(formData.get("email") ?? "").trim(),
@@ -45,6 +52,10 @@ export function ContactForm() {
       return;
     }
 
+    setStatus("sending");
+    setError(null);
+    const startedAt = Date.now();
+
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
@@ -58,9 +69,20 @@ export function ContactForm() {
 
         throw new Error(result?.error || "Lähetys epäonnistui.");
       }
+
+      // Hold the spinner for a graceful minimum before the confirmation.
+      const elapsed = Date.now() - startedAt;
+      if (elapsed < MIN_SENDING_MS) {
+        await wait(MIN_SENDING_MS - elapsed);
+      }
+
       setStatus("ok");
-      (event.target as HTMLFormElement).reset();
+      form.reset();
     } catch (err) {
+      const elapsed = Date.now() - startedAt;
+      if (elapsed < MIN_SENDING_MS) {
+        await wait(MIN_SENDING_MS - elapsed);
+      }
       setStatus("error");
       setError(err instanceof Error ? err.message : "Tuntematon virhe.");
     }
@@ -94,7 +116,9 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <>
+      {status === "sending" && <SendingOverlay />}
+      <form onSubmit={handleSubmit} className="space-y-8">
       <div className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2">
         <Field label="Nimi" required>
           <input
@@ -185,7 +209,29 @@ export function ContactForm() {
           Vastaamme yleensä saman arkipäivän aikana.
         </span>
       </div>
-    </form>
+      </form>
+    </>
+  );
+}
+
+function SendingOverlay() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      aria-label="Lähetetään viestiä"
+      className="animate-overlay-in fixed inset-0 z-[70] flex items-center justify-center bg-night/90 px-6 backdrop-blur-sm"
+    >
+      <div className="flex flex-col items-center gap-6">
+        <span
+          aria-hidden
+          className="h-12 w-12 animate-spin rounded-full border-2 border-white/15 border-t-accent-soft"
+        />
+        <p className="text-[11px] uppercase tracking-label text-white/60">
+          Lähetetään
+        </p>
+      </div>
+    </div>
   );
 }
 

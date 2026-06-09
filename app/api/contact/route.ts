@@ -57,7 +57,7 @@ export async function POST(request: Request) {
   });
 
   const text = [
-    "Uusi yhteydenotto JobFuture-sivustolta",
+    "Uusi yhteydenotto Job Future-sivustolta",
     "",
     `Nimi: ${name}`,
     `Sähköposti: ${email || "-"}`,
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     headers: {
       Authorization: `Bearer ${resendApiKey}`,
       "Content-Type": "application/json",
-      "User-Agent": "JobFuture contact form"
+      "User-Agent": "Job Future contact form"
     },
     body: JSON.stringify({
       from: contactSender,
@@ -141,7 +141,7 @@ function buildContactEmailHtml({
 
   return `
     <div style="font-family:Arial,sans-serif;line-height:1.55;color:#101517">
-      <h1 style="font-size:20px;margin:0 0 18px">Uusi yhteydenotto JobFuture-sivustolta</h1>
+      <h1 style="font-size:20px;margin:0 0 18px">Uusi yhteydenotto Job Future-sivustolta</h1>
       <table style="border-collapse:collapse;margin-bottom:22px">
         <tbody>
           ${rows
