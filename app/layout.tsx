@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Job Future Oy",
     description:
-      "Teknisiä palveluita, konsultointia ja tarvikemyyntiä. Oravikoski, Pohjois-Savo.",
+      "Teknisiä palveluita, konsultointia ja tarvikemyyntiä. Leppävirta, Pohjois-Savo.",
     type: "website",
     locale: "fi_FI"
   }

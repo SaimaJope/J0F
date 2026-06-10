@@ -37,7 +37,7 @@ const services: Service[] = [
   },
   {
     index: "04",
-    title: "Ilmalämpöpumppujen ja jäähdytyslaitteiden tarjoukset ja myynti",
+    title: "Ilmalämpöpumppujen ja jäähdytyslaitteiden tarjoukset myynti ja asennus",
     description:
       "Tarjoamme ilmalämpöpumppuihin ja jäähdytyslaitteisiin liittyviä tarjous- ja myyntipalveluita. Autamme sopivan laitteen valinnassa kohteen ja käyttötarpeen mukaan."
   },
@@ -66,7 +66,7 @@ const meta = [
     label: "Toimiala",
     value: "Tekniset palvelut, konsultointi ja tarvikemyynti"
   },
-  { label: "Sijainti", value: "Myllärintie 5, 71470 Oravikoski" },
+  { label: "Sijainti", value: "Kauppilanmäentie 1 A 5, 79100 Leppävirta" },
   { label: "Puhelin", value: "044 572 3200", href: "tel:+358445723200" },
   { label: "Sähköposti", value: "info@jobfuture.fi", href: "mailto:info@jobfuture.fi" },
   { label: "Y-tunnus", value: "2650982-5" }
@@ -76,7 +76,7 @@ const heroFacts = [
   { label: "Palvelut", value: "Sähkö, tele, LVI ja kylmätekniikka" },
   { label: "Toimitus", value: "Erillisen tarjouksen perusteella" },
   { label: "Puhelin", value: "044 572 3200", href: "tel:+358445723200" },
-  { label: "Sijainti", value: "Oravikoski, Pohjois-Savo" }
+  { label: "Sijainti", value: "Leppävirta, Pohjois-Savo" }
 ];
 
 export default function Home() {
@@ -411,9 +411,9 @@ function SiteFooter() {
             Toimisto
           </p>
           <address className="mt-4 not-italic">
-            Myllärintie 5
+            Kauppilanmäentie 1 A 5
             <br />
-            71470 Oravikoski
+            79100 Leppävirta
           </address>
         </div>
 
